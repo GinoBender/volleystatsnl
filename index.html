@@ -609,65 +609,75 @@ function parseRSS(xml) {
 }
 
 function parseItem(item) {
-  const title   = (item.querySelector('title')?.textContent||'').trim();
-  const descRaw = (item.querySelector('description')?.textContent||'');
-  // Strip HTML but preserve whitespace boundaries for parsing
-  const desc    = descRaw.replace(/<br\s*\/?>/gi,' | ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
-  const link    = (item.querySelector('link')?.textContent||'').trim();
+  // RSS structure (from Nevobo):
+  //   <title>  Thuis DS X - Uit DS Y, Uitslag: A-B   (of zonder "Uitslag" als nog niet gespeeld)
+  //   <desc>   Wedstrijd: ..., Uitslag: A-B, Setstanden: 25-10, 25-14, ...
+  //   <pubDate> Sat, 11 Apr 2026 15:00:00 +0200   ← datum + aanvangstijd
+  //   <link>   permalink
+  //   <category> gespeeld | te spelen
 
-  // Date from title: DD-MM-YYYY
-  let ts=null,dateStr='—',timeStr='';
-  const dm = title.match(/(\d{2})-(\d{2})-(\d{4})/);
-  if (dm) {
-    ts = new Date(+dm[3],+dm[2]-1,+dm[1]).getTime();
-    dateStr = new Date(ts).toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  const title    = (item.querySelector('title')?.textContent||'').trim();
+  const desc     = (item.querySelector('description')?.textContent||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+  const pubDate  = (item.querySelector('pubDate')?.textContent||'').trim();
+  const link     = (item.querySelector('link')?.textContent||'').trim();
+  const category = (item.querySelector('category')?.textContent||'').trim().toLowerCase();
+
+  // ── Datum + tijd uit pubDate (RFC 2822: "Sat, 11 Apr 2026 15:00:00 +0200") ──
+  let ts=null, dateStr='—', timeStr='';
+  if (pubDate) {
+    const d = new Date(pubDate);
+    if (!isNaN(d)) {
+      ts = d.getTime();
+      dateStr = d.toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+      // Tijd: toon als lokale tijd (pubDate bevat tijdzone)
+      const h = d.getHours(), m2 = d.getMinutes();
+      if (h > 0 || m2 > 0) timeStr = String(h).padStart(2,'0')+':'+String(m2).padStart(2,'0');
+    }
   }
 
-  // Time from description: e.g. "14:30" or "Aanvangstijd: 14:30"
-  const tm = desc.match(/\b(\d{1,2}):(\d{2})\b/);
-  if (tm) {
-    timeStr = tm[0];
-    // Refine ts with actual time if we have a date
-    if (ts) ts = new Date(+dm[3],+dm[2]-1,+dm[1],+tm[1],+tm[2]).getTime();
+  // ── Teams parsen uit title ──
+  // Format: "Thuis DS X - Uit DS Y, Uitslag: A-B"
+  //     of: "Thuis DS X - Uit DS Y"  (programma, zonder uitslag)
+  let thuis='', uit='', scoreStr='', sw=0, sl=0;
+  // Splits op ", Uitslag:" om teams van score te scheiden
+  const uitslag_idx = title.indexOf(', Uitslag:');
+  const teamsPart   = uitslag_idx>=0 ? title.slice(0,uitslag_idx) : title;
+  const scorePart   = uitslag_idx>=0 ? title.slice(uitslag_idx+10).trim() : '';
+
+  // Score parsen: "4-0" → sw=4, sl=0
+  if (scorePart) {
+    const sm = scorePart.match(/^(\d+)\s*-\s*(\d+)/);
+    if (sm) { sw=+sm[1]; sl=+sm[2]; scoreStr=sw+'-'+sl; }
   }
 
-  // Venue from description: look for sporthal/locatie patterns
-  let venue = '', city = '';
-  // Pattern: "Sporthal: Naam | Adres | Plaats" or just text after time
-  const venueM = desc.match(/(?:sporthal|hal|locatie|accommodatie)[:\s]+([^|\n]{3,50})/i);
-  if (venueM) venue = venueM[1].trim();
-  // City: last segment often "Plaats, Gemeente" or just a word after address
-  const cityM = desc.match(/(?:\|\s)([A-ZÀ-Ö][a-zà-ö]+(?:\s[A-ZÀ-Öa-zà-ö]+)?)\s*$/);
-  if (cityM) city = cityM[1].trim();
-  // Fallback: extract capitalized words that look like a city (after digits/street)
-  if (!venue) {
-    const fallback = desc.replace(/\d{1,2}:\d{2}/,'').replace(/^[^|]+\|/,'').trim();
-    if (fallback && fallback.length < 80) venue = fallback.split('|')[0].trim();
+  // Teams: split op " - " (spaties rondom koppelteken)
+  const teamSplit = teamsPart.split(/\s+-\s+/);
+  thuis = (teamSplit[0]||'').trim();
+  uit   = (teamSplit.slice(1).join(' - ')||'').trim();
+
+  // ── Setstanden uit description ──
+  const sets=[];
+  const setM = desc.match(/Setstanden:\s*([\d,\s-]+)/i);
+  if (setM) {
+    const sr = /(\d{1,2})-(\d{1,2})/g; let m;
+    while ((m=sr.exec(setM[1]))!==null) {
+      const a=+m[1],b=+m[2];
+      if (Math.max(a,b)>=10 && Math.max(a,b)<=35) sets.push([a,b]);
+    }
   }
 
-  const bare = title.replace(/\d{2}-\d{2}-\d{4}\s*/,'').trim();
-  const sm = bare.match(/\b(\d)\s*-\s*(\d)\s*$/);
-  let scoreStr='',thuis='',uit='',sw=0,sl=0;
-  if (sm) {
-    sw=+sm[1];sl=+sm[2];scoreStr=sw+'-'+sl;
-    const rest=bare.slice(0,bare.lastIndexOf(sm[0])).replace(/\s*[-–]\s*$/,'').trim();
-    const sp=rest.split(/\s+[-–]\s+/);
-    thuis=(sp[0]||'').trim();uit=(sp.slice(1).join(' – ')||'').trim();
-  } else {
-    const sp=bare.split(/\s+[-–]\s+/);
-    thuis=(sp[0]||bare).trim();uit=(sp[1]||'').trim();
+  // ── Status: gespeeld of gepland ──
+  const played_cat = category === 'gespeeld' || (scoreStr !== '');
+
+  // ── Win/verlies/punten ──
+  let result=null, points=null;
+  if (scoreStr) {
+    result = sw>sl ? 'W' : 'L';
+    // Volleybal punten: 3-0/3-1=3pt, 3-2=2pt, 2-3=1pt, 0-3/1-3=0pt
+    points = result==='W' ? (sl<=1?3:2) : (sw===2?1:0);
   }
 
-  // Set scores from desc
-  const sets=[];const sr=/(\d{1,2})-(\d{1,2})/g;let m;
-  while((m=sr.exec(desc))!==null){const a=+m[1],b=+m[2];if(Math.max(a,b)>=20&&Math.max(a,b)<=35)sets.push([a,b]);}
-
-  let result=null,points=null;
-  if(scoreStr){
-    result=sw>sl?'W':'L';
-    points=result==='W'?(sl<=1?3:2):(sw===2?1:0);
-  }
-  return{ts,dateStr,timeStr,venue,city,thuis,uit,scoreStr,sw,sl,sets,result,points,link};
+  return {ts,dateStr,timeStr,thuis,uit,scoreStr,sw,sl,sets,result,points,link,played_cat};
 }
 
 function enrichHA(matches,teamName) {
