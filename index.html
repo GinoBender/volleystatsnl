@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VolleyStatsNL — Volleybalstatistieken</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',system-ui,sans-serif;background:#fafafa;color:#111;min-height:100vh;font-size:15px;-webkit-font-smoothing:antialiased}
+
+/* ── TOKENS ── */
+:root{
+  --black:#0a0a0a;
+  --white:#ffffff;
+  --gray-50:#f9f9f9;
+  --gray-100:#f2f2f2;
+  --gray-200:#e5e5e5;
+  --gray-300:#d4d4d4;
+  --gray-400:#a3a3a3;
+  --gray-500:#737373;
+  --gray-700:#404040;
+  --gray-900:#171717;
+  --blue:#1a6ef5;
+  --blue-lt:#e8f0fe;
+  --green:#16a34a;
+  --green-lt:#dcfce7;
+  --red:#dc2626;
+  --red-lt:#fef2f2;
+  --yellow:#d97706;
+  --yellow-lt:#fffbeb;
+  --mono:'DM Mono',monospace;
+  --radius:10px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.05);
+}
+
+/* ── NAV ── */
+nav{
+  background:var(--white);
+  border-bottom:1px solid var(--gray-200);
+  position:sticky;top:0;z-index:100;
+}
+.nav-inner{
+  max-width:1120px;margin:0 auto;
+  padding:0 24px;height:60px;
+  display:flex;align-items:center;gap:24px;
+}
+.logo{
+  display:flex;align-items:center;gap:10px;
+  cursor:pointer;flex-shrink:0;user-select:none;
+  text-decoration:none;
+}
+.logo-mark{
+  width:32px;height:32px;background:var(--black);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.logo-text{
+  font-size:.95rem;font-weight:700;letter-spacing:-.3px;color:var(--black);
+  line-height:1;
+}
+.logo-text span{color:var(--blue)}
+
+/* Search */
+.nav-search{flex:1;max-width:440px;position:relative}
+.search-field{
+  display:flex;align-items:center;
+  background:var(--gray-100);
+  border:1px solid transparent;
+  border-radius:var(--radius);
+  transition:border-color .15s,background .15s;
+  overflow:hidden;
+}
+.search-field:focus-within{background:var(--white);border-color:var(--gray-300);box-shadow:var(--shadow)}
+.search-icon{padding:0 10px 0 14px;color:var(--gray-400);flex-shrink:0;display:flex;align-items:center}
+.search-field input{
+  flex:1;border:none;outline:none;background:transparent;
+  padding:9px 4px;font-family:'DM Sans',sans-serif;font-size:.9rem;
+  color:var(--black);min-width:0;
+}
+.search-field input::placeholder{color:var(--gray-400)}
+.search-clear{
+  padding:0 12px;color:var(--gray-400);cursor:pointer;
+  display:none;align-items:center;font-size:18px;line-height:1;
+}
+.search-field:focus-within .search-clear{display:flex}
+
+/* Dropdown */
+.sugg{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:var(--radius);box-shadow:var(--shadow-md);
+  z-index:200;display:none;overflow:hidden;
+  max-height:360px;overflow-y:auto;
+}
+.sugg.open{display:block}
+.sdiv{
+  padding:7px 14px;font-size:.7rem;font-weight:600;
+  color:var(--gray-400);text-transform:uppercase;letter-spacing:.6px;
+  background:var(--gray-50);border-bottom:1px solid var(--gray-100);
+}
+.si{
+  padding:10px 14px;cursor:pointer;
+  display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid var(--gray-100);
+  transition:background .1s;
+}
+.si:last-child{border-bottom:none}
+.si:hover{background:var(--gray-50)}
+.si-ico{font-size:15px;flex-shrink:0}
+.si-name{font-size:.88rem;font-weight:500;color:var(--black)}
+.si-meta{font-size:.76rem;color:var(--gray-400);font-family:var(--mono)}
+.si-tag{
+  margin-left:auto;font-size:.68rem;
+  background:var(--blue-lt);color:var(--blue);
+  border-radius:20px;padding:2px 8px;font-weight:600;flex-shrink:0;
+}
+
+/* Nav right */
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.btn-ghost{
+  background:none;border:1px solid var(--gray-200);
+  border-radius:var(--radius);color:var(--gray-700);
+  font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:500;
+  padding:6px 14px;cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  transition:border-color .15s,background .15s;white-space:nowrap;
+}
+.btn-ghost:hover{border-color:var(--gray-300);background:var(--gray-50)}
+.btn-primary{
+  background:var(--black);border:1px solid var(--black);
+  border-radius:var(--radius);color:var(--white);
+  font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:600;
+  padding:6px 14px;cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  transition:background .15s,opacity .15s;white-space:nowrap;
+}
+.btn-primary:hover{opacity:.85}
+
+/* ── MAIN ── */
+main{max-width:1120px;margin:0 auto;padding:40px 24px 80px}
+
+/* ── HOME ── */
+.home-hero{text-align:center;padding:64px 0 48px}
+.home-hero h2{font-size:2.2rem;font-weight:700;letter-spacing:-.6px;line-height:1.2;margin-bottom:14px;color:var(--black)}
+.home-hero p{font-size:1rem;color:var(--gray-500);max-width:420px;margin:0 auto 36px;line-height:1.6}
+
+.search-big{
+  max-width:520px;margin:0 auto;
+  display:flex;background:var(--white);
+  border:1px solid var(--gray-200);border-radius:12px;
+  box-shadow:var(--shadow-md);overflow:hidden;
+}
+.search-big input{
+  flex:1;border:none;outline:none;padding:13px 18px;
+  font-family:'DM Sans',sans-serif;font-size:.95rem;
+  color:var(--black);background:transparent;min-width:0;
+}
+.search-big input::placeholder{color:var(--gray-400)}
+.search-big button{
+  background:var(--black);border:none;color:var(--white);
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;
+  padding:0 22px;cursor:pointer;flex-shrink:0;
+  transition:opacity .15s;
+}
+.search-big button:hover{opacity:.85}
+
+/* Saved teams section */
+.saved-section{margin-top:48px}
+.saved-label{
+  font-size:.72rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.7px;color:var(--gray-400);margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;
+}
+.saved-label::after{content:'';flex:1;height:1px;background:var(--gray-200)}
+.teams-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.team-tile{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:var(--radius);padding:14px 16px;
+  cursor:pointer;transition:border-color .15s,box-shadow .15s;
+  display:flex;align-items:center;gap:12px;
+  user-select:none;
+}
+.team-tile:hover{border-color:var(--gray-300);box-shadow:var(--shadow)}
+.team-tile-ico{
+  width:36px;height:36px;border-radius:8px;background:var(--gray-100);
+  display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;
+}
+.team-tile-name{font-size:.88rem;font-weight:600;color:var(--black);line-height:1.3}
+.team-tile-meta{font-size:.73rem;color:var(--gray-400);font-family:var(--mono);margin-top:2px}
+
+/* Empty state (no saved teams) */
+.no-teams{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:12px;padding:32px;text-align:center;
+}
+.no-teams .nt-ico{font-size:2rem;margin-bottom:10px;opacity:.4}
+.no-teams p{font-size:.88rem;color:var(--gray-500);line-height:1.5;max-width:300px;margin:0 auto}
+
+/* ── PICKER ── */
+.picker-card{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:12px;padding:24px;margin-bottom:20px;
+}
+.picker-card h2{font-size:1.2rem;font-weight:700;margin-bottom:4px;letter-spacing:-.3px}
+.picker-card .pc-meta{font-size:.82rem;color:var(--gray-400);margin-bottom:20px;font-family:var(--mono)}
+.teams-picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.picker-btn{
+  background:var(--gray-50);border:1px solid var(--gray-200);
+  border-radius:var(--radius);padding:12px 16px;cursor:pointer;
+  text-align:left;transition:border-color .15s,background .15s;
+  font-family:'DM Sans',sans-serif;
+}
+.picker-btn:hover{border-color:var(--black);background:var(--white)}
+.picker-btn .pb-type{font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400);font-weight:600;margin-bottom:3px;font-family:var(--mono)}
+.picker-btn .pb-name{font-size:.88rem;font-weight:600;color:var(--black)}
+
+/* ── BANNER ── */
+.team-banner{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:12px;padding:16px 20px;
+  display:flex;align-items:center;gap:14px;margin-bottom:20px;
+}
+.back-btn{
+  background:none;border:1px solid var(--gray-200);
+  border-radius:8px;width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--gray-500);font-size:1.1rem;
+  transition:border-color .15s,color .15s;flex-shrink:0;
+}
+.back-btn:hover{border-color:var(--gray-400);color:var(--black)}
+.banner-ico{
+  width:40px;height:40px;border-radius:10px;background:var(--gray-100);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.banner-info h2{font-size:1.1rem;font-weight:700;letter-spacing:-.3px;color:var(--black)}
+.banner-meta{font-size:.76rem;color:var(--gray-400);margin-top:2px;font-family:var(--mono)}
+.banner-meta b{color:var(--blue)}
+.badge-loading{
+  margin-left:auto;background:var(--gray-100);color:var(--gray-500);
+  border-radius:20px;padding:5px 12px;font-size:.76rem;font-weight:500;
+  display:flex;align-items:center;gap:6px;flex-shrink:0;font-family:var(--mono);
+}
+.spin{display:inline-block;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-refresh{
+  margin-left:auto;background:none;border:1px solid var(--gray-200);
+  border-radius:8px;padding:5px 12px;font-size:.76rem;font-weight:500;
+  color:var(--gray-500);cursor:pointer;font-family:'DM Sans',sans-serif;
+  transition:border-color .15s,color .15s;flex-shrink:0;
+}
+.btn-refresh:hover{border-color:var(--gray-400);color:var(--black)}
+
+/* ── STATS ROW ── */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:16px}
+.sc{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:var(--radius);padding:16px;
+}
+.sc .l{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400);margin-bottom:6px;font-family:var(--mono)}
+.sc .v{font-size:1.65rem;font-weight:700;letter-spacing:-1px;line-height:1;color:var(--black)}
+.sc .s{font-size:.72rem;color:var(--gray-400);margin-top:4px}
+.sc.c-blue .v{color:var(--blue)}
+.sc.c-green .v{color:var(--green)}
+.sc.c-red .v{color:var(--red)}
+
+/* ── TABS ── */
+.tabs-wrap{border-bottom:1px solid var(--gray-200);margin-bottom:18px}
+.tabs{display:flex;gap:0}
+.tab{
+  background:none;border:none;padding:10px 18px;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;
+  color:var(--gray-400);border-bottom:2px solid transparent;
+  margin-bottom:-1px;cursor:pointer;transition:color .15s;
+}
+.tab:hover{color:var(--gray-700)}
+.tab.on{color:var(--black);border-bottom-color:var(--black);font-weight:600}
+.pane{display:none}.pane.on{display:block}
+
+/* ── TABLE ── */
+.tcard{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:var(--radius);overflow:hidden;margin-bottom:16px;
+}
+.tcard table{width:100%;border-collapse:collapse}
+.tcard thead tr{background:var(--gray-50)}
+.tcard th{
+  padding:9px 14px;font-size:.68rem;font-weight:600;
+  color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;
+  text-align:left;border-bottom:1px solid var(--gray-200);
+  font-family:var(--mono);
+}
+.tcard td{
+  padding:10px 14px;border-bottom:1px solid var(--gray-100);
+  vertical-align:middle;font-size:.88rem;color:var(--black);
+}
+.tcard tr:last-child td{border-bottom:none}
+.tcard tr:hover td{background:var(--gray-50)}
+.score{font-weight:700;font-family:var(--mono)}
+.bdg{display:inline-flex;align-items:center;padding:3px 9px;border-radius:6px;font-size:.72rem;font-weight:600;font-family:var(--mono)}
+.bW{background:var(--green-lt);color:var(--green)}
+.bL{background:var(--red-lt);color:var(--red)}
+.bP{background:var(--gray-100);color:var(--gray-400)}
+.lh{background:var(--blue-lt);color:var(--blue);padding:2px 8px;border-radius:5px;font-size:.68rem;font-weight:600;font-family:var(--mono)}
+.la{background:var(--yellow-lt);color:var(--yellow);padding:2px 8px;border-radius:5px;font-size:.68rem;font-weight:600;font-family:var(--mono)}
+.pts-val{font-weight:700;font-family:var(--mono)}
+.pts-3{color:var(--green)}.pts-2{color:#65a30d}.pts-1{color:var(--yellow)}.pts-0{color:var(--red)}
+
+/* ── FORM STRIP ── */
+.form-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:16px}
+.fd{
+  width:28px;height:28px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.68rem;font-weight:700;font-family:var(--mono);
+}
+.fd.W{background:var(--green);color:#fff}
+.fd.L{background:var(--red);color:#fff}
+.fd.P{background:var(--gray-200);color:var(--gray-400)}
+.form-lbl{font-size:.72rem;color:var(--gray-400);margin-left:4px;font-family:var(--mono)}
+
+/* ── CHARTS ── */
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:16px}
+.cc{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:18px}
+.cc h3{font-size:.9rem;font-weight:700;color:var(--black);margin-bottom:2px;letter-spacing:-.2px}
+.cc .cs{font-size:.76rem;color:var(--gray-400);margin-bottom:14px;line-height:1.4}
+.cc canvas{max-height:185px}
+
+/* ── INSIGHTS ── */
+.ins-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:16px}
+.ins{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:var(--radius);padding:14px 16px;
+  display:flex;gap:12px;
+}
+.ins-i{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+.ins h4{font-size:.84rem;font-weight:700;color:var(--black);margin-bottom:3px;letter-spacing:-.2px}
+.ins p{font-size:.77rem;color:var(--gray-500);line-height:1.55}
+.ins.pos{border-left:3px solid var(--green)}
+.ins.neg{border-left:3px solid var(--red)}
+.ins.neu{border-left:3px solid var(--blue)}
+.ins.warn{border-left:3px solid var(--yellow)}
+
+/* ── SEC LABEL ── */
+.sl{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--gray-400);margin-bottom:10px;margin-top:2px;font-family:var(--mono)}
+
+/* ── ERROR / INFO ── */
+.err{background:var(--red-lt);border:1px solid #fca5a5;border-radius:var(--radius);padding:14px 16px;color:#991b1b;font-size:.86rem;text-align:center}
+.info-box{background:var(--blue-lt);border:1px solid #93c5fd;border-radius:var(--radius);padding:12px 16px;color:#1e40af;font-size:.83rem;margin-bottom:14px;line-height:1.5}
+.nd{text-align:center;padding:28px;color:var(--gray-400);font-size:.86rem;font-family:var(--mono)}
+
+/* ── MODAL ── */
+.ovl{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);z-index:500;display:none;align-items:center;justify-content:center}
+.ovl.open{display:flex}
+.modal{
+  background:var(--white);border-radius:16px;
+  padding:28px;width:min(440px,95vw);
+  box-shadow:0 20px 60px rgba(0,0,0,.15);
+  animation:mIn .2s ease;
+}
+@keyframes mIn{from{opacity:0;transform:scale(.97) translateY(6px)}to{opacity:1;transform:scale(1)translateY(0)}}
+.modal h2{font-size:1rem;font-weight:700;margin-bottom:4px;letter-spacing:-.3px}
+.modal .ms{font-size:.82rem;color:var(--gray-400);margin-bottom:20px;line-height:1.5}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;font-family:var(--mono)}
+.fg input,.fg select{
+  width:100%;border:1px solid var(--gray-200);border-radius:8px;
+  padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:.88rem;
+  color:var(--black);outline:none;background:var(--gray-50);transition:border-color .15s;
+}
+.fg input:focus,.fg select:focus{border-color:var(--black);background:var(--white);box-shadow:0 0 0 3px rgba(0,0,0,.06)}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .logo-text{display:none}
+  .nav-right .btn-ghost span{display:none}
+  .chart-grid{grid-template-columns:1fr}
+  .tcard th:nth-child(5),.tcard td:nth-child(5){display:none}
+}
+
+/* ── VERGELIJKEN ── */
+.compare-bar{
+  position:sticky;bottom:0;left:0;right:0;
+  background:var(--black);color:var(--white);
+  padding:14px 24px;display:flex;align-items:center;gap:14px;
+  z-index:50;animation:slideUp .25s ease;
+  box-shadow:0 -4px 24px rgba(0,0,0,.15);
+}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.compare-bar .cb-teams{flex:1;font-size:.84rem;opacity:.8}
+.compare-bar .cb-teams b{color:var(--white);opacity:1}
+.compare-btn{background:var(--white);color:var(--black);border:none;border-radius:8px;padding:8px 20px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s}
+.compare-btn:hover{opacity:.85}
+.cancel-cmp{background:none;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.7);border-radius:8px;padding:8px 14px;font-size:.84rem;cursor:pointer;font-family:'DM Sans',sans-serif}
+.cancel-cmp:hover{border-color:rgba(255,255,255,.6);color:#fff}
+.team-tile{position:relative}
+.cmp-check{
+  position:absolute;top:8px;right:8px;
+  width:20px;height:20px;border-radius:6px;
+  border:2px solid var(--gray-300);background:var(--white);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:border-color .15s,background .15s;flex-shrink:0;
+}
+.cmp-check.checked{border-color:var(--blue);background:var(--blue);color:#fff;font-size:.7rem}
+
+/* ── COMPARE VIEW ── */
+.compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:20px}
+.cmp-col{background:var(--white);border:1px solid var(--gray-200);border-radius:12px;overflow:hidden}
+.cmp-col-header{padding:14px 18px;background:var(--gray-50);border-bottom:1px solid var(--gray-200)}
+.cmp-col-header h3{font-size:.95rem;font-weight:700;letter-spacing:-.2px}
+.cmp-col-header .cmh-meta{font-size:.73rem;color:var(--gray-400);font-family:var(--mono);margin-top:2px}
+.cmp-stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;padding:14px}
+.cmp-stat{text-align:center}
+.cmp-stat .cv{font-size:1.4rem;font-weight:700;letter-spacing:-1px;color:var(--black)}
+.cmp-stat .cl{font-size:.67rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;font-family:var(--mono);margin-top:2px}
+.cmp-stat.best .cv{color:var(--green)}
+.cmp-bar-wrap{padding:0 14px 14px}
+.cmp-bar-label{font-size:.7rem;font-family:var(--mono);color:var(--gray-400);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.cmp-bar{height:8px;background:var(--gray-100);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.cmp-bar-fill{height:100%;border-radius:4px;background:var(--blue);transition:width .5s ease}
+.cmp-bar-fill.green{background:var(--green)}
+.cmp-bar-fill.red{background:var(--red)}
+
+/* ── ANIMATION ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .3s ease both}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="logo" data-action="home">
+      <div class="logo-mark">🏐</div>
+      <div class="logo-text">Volley<span>Stats</span>NL</div>
+    </a>
+
+    <div class="nav-search">
+      <div class="search-field">
+        <div class="search-icon">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </div>
+        <input type="text" id="SI" placeholder="Zoek op clubnaam of code…" autocomplete="off"/>
+        <button onclick="doSearch()" style="background:none;border:none;border-left:1px solid var(--gray-200);padding:0 14px;cursor:pointer;color:var(--gray-400);font-size:.82rem;font-weight:500;font-family:'DM Sans',sans-serif;height:100%;transition:color .15s" onmouseover="this.style.color='var(--black)'" onmouseout="this.style.color='var(--gray-400)'">Zoeken</button>
+        <div class="search-clear" id="SC" onclick="clearSearch()">×</div>
+      </div>
+      <div class="sugg" id="SB"></div>
+    </div>
+
+    <div class="nav-right">
+      <button class="btn-ghost" data-action="modal">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        <span>Team toevoegen</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main id="M"></main>
+
+<!-- MODAL -->
+<div class="ovl" id="OV">
+  <div class="modal">
+    <h2>Team handmatig toevoegen</h2>
+    <p class="ms">Voer de clubcode en teamgegevens in. De clubcode vind je in de URL op <a href="https://www.volleybal.nl/competitie" target="_blank" style="color:var(--blue)">volleybal.nl</a>.<br>Voorbeeld: volleybal.nl/competitie/vereniging/<b>CKL7F1L</b></p>
+    <div class="fg">
+      <label>Teamnaam (weergave)</label>
+      <input type="text" id="mN" placeholder="bijv. VV De Boemel DS 2"/>
+    </div>
+    <div class="fg">
+      <label>Clubcode</label>
+      <input type="text" id="mC" placeholder="bijv. CKL7F1L" style="font-family:var(--mono)"/>
+    </div>
+    <div class="fg">
+      <label>Teamtype</label>
+      <select id="mT">
+        <option value="dames">Dames senioren</option>
+        <option value="heren">Heren senioren</option>
+        <option value="meisjes-a">Meisjes A</option>
+        <option value="meisjes-b">Meisjes B</option>
+        <option value="meisjes-c">Meisjes C</option>
+        <option value="meisjes-d">Meisjes D</option>
+        <option value="jongens-a">Jongens A</option>
+        <option value="jongens-b">Jongens B</option>
+        <option value="jongens-c">Jongens C</option>
+        <option value="gemengd">Gemengd</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Teamnummer</label>
+      <input type="number" id="mNR" min="1" value="1"/>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-ghost" data-action="modal-close">Annuleren</button>
+      <button class="btn-primary" data-action="modal-save">Opslaan & openen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  CONSTANTEN
+// ═══════════════════════════════════════════
+const NEVOBO    = 'https://api.nevobo.nl';
+const EXPORT    = NEVOBO + '/export';
+const STORE     = 'vs_teams_v1';   // nieuwe key — geen conflict met oude data
+const CPFX      = 'vs_c2_';  // bumped → force re-fetch with new parseItem fields
+const TTL       = 3600000; // 1 uur
+
+// Proxy-keten: probeer op volgorde, stop bij eerste succes
+const PROXY_CHAIN = [
+  { url: u => 'https://corsproxy.io/?' + encodeURIComponent(u), raw: true },
+  { url: u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u), raw: false },
+  { url: u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u), raw: true },
+];
+
+// Fetch-generatie — voorkomt dat een oud resultaat een nieuw overschrijft
+let gen = 0;
+
+// Team-registry (id → object) — voorkomt JSON-in-HTML-attribuut problemen
+const TR = {};
+
+// Clubs-database (geladen uit clubs.json)
+let clubsDB = [];
+
+// Chart-instanties
+let charts = {};
+
+// ═══════════════════════════════════════════
+//  OPSLAG — volledig safe voor file://
+// ═══════════════════════════════════════════
+function getTeams() {
+  try { return JSON.parse(localStorage.getItem(STORE)) || []; } catch { return []; }
+}
+function saveTeams(t) {
+  try { localStorage.setItem(STORE, JSON.stringify(t)); } catch {}
+}
+function getCached(k) {
+  try {
+    const r = localStorage.getItem(CPFX+k);
+    if (!r) return null;
+    const {ts,d} = JSON.parse(r);
+    if (Date.now()-ts > TTL) { localStorage.removeItem(CPFX+k); return null; }
+    return d;
+  } catch { return null; }
+}
+function setCached(k,d) {
+  try { localStorage.setItem(CPFX+k, JSON.stringify({ts:Date.now(),d})); } catch {}
+}
+function delCached(k) { try { localStorage.removeItem(CPFX+k); } catch {} }
+
+// ═══════════════════════════════════════════
+//  URL-BUILDER
+// ═══════════════════════════════════════════
+function teamUrl(code,type,nr) {
+  return EXPORT+'/team/'+code.toUpperCase()+'/'+type+'/'+nr+'/resultaten.rss';
+}
+function cacheKey(code,type,nr) {
+  return code.toUpperCase()+'__'+type+'__'+nr;
+}
+function teamId(code,type,nr) {
+  return (code+'_'+type+'_'+nr).toLowerCase().replace(/[^a-z0-9_]/g,'_');
+}
+
+// ═══════════════════════════════════════════
+//  FETCH RSS — proxy-fallback keten
+// ═══════════════════════════════════════════
+async function fetchRSS(url) {
+  let lastErr = null;
+  for (const proxy of PROXY_CHAIN) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 10000);
+    try {
+      const r = await fetch(proxy.url(url), {signal: ctrl.signal});
+      clearTimeout(t);
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      if (proxy.raw) {
+        const text = await r.text();
+        if (!text || text.length < 50) throw new Error('Lege response');
+        return text;
+      } else {
+        const j = await r.json();
+        if (!j.contents) throw new Error('Lege proxy response');
+        return j.contents;
+      }
+    } catch(e) {
+      clearTimeout(t);
+      lastErr = e;
+      console.warn('[VolleyStats] Proxy mislukt:', e.message);
+    }
+  }
+  throw new Error('Alle proxies mislukten: '+(lastErr?.message||'onbekend'));
+}
+
+// ═══════════════════════════════════════════
+//  PARSE RSS
+// ═══════════════════════════════════════════
+function parseRSS(xml) {
+  const doc = new DOMParser().parseFromString(xml,'text/xml');
+  if (doc.querySelector('parsererror')) throw new Error('Ongeldige RSS');
+  return [...doc.querySelectorAll('item')].map(parseItem);
+}
+
+function parseItem(item) {
+  const title   = (item.querySelector('title')?.textContent||'').trim();
+  const descRaw = (item.querySelector('description')?.textContent||'');
+  // Strip HTML but preserve whitespace boundaries for parsing
+  const desc    = descRaw.replace(/<br\s*\/?>/gi,' | ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+  const link    = (item.querySelector('link')?.textContent||'').trim();
+
+  // Date from title: DD-MM-YYYY
+  let ts=null,dateStr='—',timeStr='';
+  const dm = title.match(/(\d{2})-(\d{2})-(\d{4})/);
+  if (dm) {
+    ts = new Date(+dm[3],+dm[2]-1,+dm[1]).getTime();
+    dateStr = new Date(ts).toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  }
+
+  // Time from description: e.g. "14:30" or "Aanvangstijd: 14:30"
+  const tm = desc.match(/\b(\d{1,2}):(\d{2})\b/);
+  if (tm) {
+    timeStr = tm[0];
+    // Refine ts with actual time if we have a date
+    if (ts) ts = new Date(+dm[3],+dm[2]-1,+dm[1],+tm[1],+tm[2]).getTime();
+  }
+
+  // Venue from description: look for sporthal/locatie patterns
+  let venue = '', city = '';
+  // Pattern: "Sporthal: Naam | Adres | Plaats" or just text after time
+  const venueM = desc.match(/(?:sporthal|hal|locatie|accommodatie)[:\s]+([^|\n]{3,50})/i);
+  if (venueM) venue = venueM[1].trim();
+  // City: last segment often "Plaats, Gemeente" or just a word after address
+  const cityM = desc.match(/(?:\|\s)([A-ZÀ-Ö][a-zà-ö]+(?:\s[A-ZÀ-Öa-zà-ö]+)?)\s*$/);
+  if (cityM) city = cityM[1].trim();
+  // Fallback: extract capitalized words that look like a city (after digits/street)
+  if (!venue) {
+    const fallback = desc.replace(/\d{1,2}:\d{2}/,'').replace(/^[^|]+\|/,'').trim();
+    if (fallback && fallback.length < 80) venue = fallback.split('|')[0].trim();
+  }
+
+  const bare = title.replace(/\d{2}-\d{2}-\d{4}\s*/,'').trim();
+  const sm = bare.match(/\b(\d)\s*-\s*(\d)\s*$/);
+  let scoreStr='',thuis='',uit='',sw=0,sl=0;
+  if (sm) {
+    sw=+sm[1];sl=+sm[2];scoreStr=sw+'-'+sl;
+    const rest=bare.slice(0,bare.lastIndexOf(sm[0])).replace(/\s*[-–]\s*$/,'').trim();
+    const sp=rest.split(/\s+[-–]\s+/);
+    thuis=(sp[0]||'').trim();uit=(sp.slice(1).join(' – ')||'').trim();
+  } else {
+    const sp=bare.split(/\s+[-–]\s+/);
+    thuis=(sp[0]||bare).trim();uit=(sp[1]||'').trim();
+  }
+
+  // Set scores from desc
+  const sets=[];const sr=/(\d{1,2})-(\d{1,2})/g;let m;
+  while((m=sr.exec(desc))!==null){const a=+m[1],b=+m[2];if(Math.max(a,b)>=20&&Math.max(a,b)<=35)sets.push([a,b]);}
+
+  let result=null,points=null;
+  if(scoreStr){
+    result=sw>sl?'W':'L';
+    points=result==='W'?(sl<=1?3:2):(sw===2?1:0);
+  }
+  return{ts,dateStr,timeStr,venue,city,thuis,uit,scoreStr,sw,sl,sets,result,points,link};
+}
+
+function enrichHA(matches,teamName) {
+  const words=teamName.toLowerCase().split(/\s+/).filter(w=>w.length>2);
+  return matches.map(m=>{
+    const tl=m.thuis.toLowerCase();
+    const isHome=words.some(w=>tl.includes(w));
+    return{...m,isHome,opponent:isHome?m.uit:m.thuis};
+  });
+}
+
+// ═══════════════════════════════════════════
+//  CLUBS DATABASE
+// ═══════════════════════════════════════════
+async function loadClubsDB() {
+  try {
+    const r = await fetch('clubs.json');
+    if (r.ok) { const d=await r.json(); clubsDB=d.clubs||[]; }
+  } catch {}
+}
+function searchLocalClubs(q) {
+  const ql=q.toLowerCase();
+  return clubsDB.filter(c=>
+    c.name.toLowerCase().includes(ql)||
+    c.code.toLowerCase()===ql||
+    (c.city||'').toLowerCase().includes(ql)
+  ).slice(0,8);
+}
+async function searchClubsOnline(q) {
+  const endpoints=[NEVOBO+'/api/associations.json?search='+encodeURIComponent(q)+'&itemsPerPage=20'];
+  for(const ep of endpoints){
+    for(const proxy of PROXY_CHAIN){
+      try{
+        const ctrl=new AbortController();
+        const t=setTimeout(()=>ctrl.abort(),8000);
+        const r=await fetch(proxy.url(ep),{signal:ctrl.signal});
+        clearTimeout(t);
+        if(!r.ok)continue;
+        const text=proxy.raw?await r.text():(await r.json()).contents||'';
+        if(!text)continue;
+        const data=JSON.parse(text);
+        const members=data['hydra:member']||data.member||[];
+        const results=members.map(c=>({
+          code:(c.code||(c['@id']||'').split('/').pop()||'').toUpperCase(),
+          name:c.name||c.naam||'',city:c.city||c.stad||''
+        })).filter(c=>c.code&&c.name);
+        if(results.length)return results;
+      }catch{}
+    }
+  }
+  return[];
+}
+
+// ═══════════════════════════════════════════
+//  HOME
+// ═══════════════════════════════════════════
+function renderHome() {
+  gen++;
+  destroyCharts();
+  const teams = getTeams();
+  teams.forEach(t=>TR[t.id]=t);
+
+  const M = document.getElementById('M');
+  M.innerHTML =
+    '<div class="home-hero fade-up">' +
+      '<h2>Volleybalstatistieken<br>voor jouw team</h2>' +
+      '<p>Zoek op verenigingscode om uitslagen, analyses en inzichten te bekijken.</p>' +
+      '<div class="search-big">' +
+        '<input type="text" id="HI" placeholder="Verenigingscode… bijv. CKL7F1L" autocomplete="off" style="font-family:var(--mono)"/>' +
+        '<button id="HBtn">Zoeken</button>' +
+      '</div>' +
+      '<details style="max-width:520px;margin:18px auto 0;text-align:left;background:var(--gray-100);border-radius:10px;padding:0">' +
+        '<summary style="padding:12px 16px;cursor:pointer;font-size:.84rem;font-weight:600;color:var(--gray-700);list-style:none;display:flex;align-items:center;gap:8px">'+
+          '<span>❓</span> Hoe vind ik mijn verenigingscode?' +
+        '</summary>' +
+        '<div style="padding:4px 16px 14px;font-size:.83rem;color:var(--gray-500);line-height:1.7">' +
+          '<ol style="padding-left:18px;margin-top:6px">' +
+            '<li>Ga naar <a href=\"https://www.volleybal.nl/competitie\" target=\"_blank\" style=\"color:var(--blue)\">volleybal.nl/competitie</a></li>' +
+            '<li>Zoek je vereniging op in het zoekvenster</li>' +
+            '<li>Klik op je vereniging</li>' +
+            '<li>Kopieer het laatste deel van de URL:<br>' +
+              '<span style=\"font-family:var(--mono);background:var(--white);padding:3px 8px;border-radius:5px;border:1px solid var(--gray-200)\">volleybal.nl/competitie/vereniging/<b>CKL7F1L</b></span>' +
+            '</li>' +
+            '<li>Plak de code hierboven en klik Zoeken</li>' +
+          '</ol>' +
+        '</div>' +
+      '</details>' +
+    '</div>' +
+    '<div class="saved-section fade-up">' +
+      '<div class="saved-label">Opgeslagen teams</div>' +
+      (teams.length
+        ? '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
+            '<div style="font-size:.8rem;color:var(--gray-400)">Klik op een team om statistieken te zien · Gebruik de checkboxes om teams te vergelijken</div>' +
+            (teams.length>=2 ? '<button class="btn-ghost" id="cmpToggle" style="font-size:.8rem;padding:5px 12px">⚖️ Vergelijken</button>' : '') +
+          '</div>' +
+          '<div class="teams-list" id="teamsList">' +
+            teams.map(t=>
+              '<div class="team-tile" data-tid="'+esc(t.id)+'">' +
+                '<div class="cmp-check" data-cid="'+esc(t.id)+'" style="display:none"></div>' +
+                '<div class="team-tile-ico">🏐</div>' +
+                '<div>' +
+                  '<div class="team-tile-name">'+esc(t.name)+'</div>' +
+                  '<div class="team-tile-meta">'+esc(t.code)+' · '+esc(typeLabel(t.type))+' '+t.nr+'</div>' +
+                '</div>' +
+              '</div>'
+            ).join('') +
+          '</div>'
+        : '<div class="no-teams">' +
+            '<div class="nt-ico">🏐</div>' +
+            '<p>Nog geen teams opgeslagen. Voer een verenigingscode in om te starten.</p>' +
+          '</div>') +
+    '</div>';
+
+  document.getElementById('SI').value='';
+  document.getElementById('SB').classList.remove('open');
+
+  // Hero search
+  const hi = document.getElementById('HI');
+  if (hi) {
+    hi.addEventListener('keydown', e=>{ if(e.key==='Enter') { document.getElementById('SI').value=hi.value; doSearch(); }});
+    document.getElementById('HBtn').addEventListener('click', ()=>{ document.getElementById('SI').value=hi.value; doSearch(); });
+    hi.addEventListener('input', ()=>{ document.getElementById('SI').value=hi.value; updateSugg(hi.value); });
+    setTimeout(()=>hi.focus(), 100);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  VERGELIJKEN
+// ═══════════════════════════════════════════
+let compareMode = false;
+let compareIds  = new Set();
+
+function initCompareMode() {
+  compareMode = false;
+  compareIds.clear();
+}
+
+// cmpToggle en checkbox-clicks worden afgehandeld in de centrale event delegation hieronder
+
+function updateCompareBar() {
+  removeCompareBar();
+  if (compareIds.size < 2) return;
+  const bar = document.createElement('div');
+  bar.className = 'compare-bar';
+  bar.id = 'cmpBar';
+  const names = [...compareIds].map(id => {
+    const t = TR[id] || getTeams().find(t=>t.id===id);
+    return t ? (t.name.split(' ').slice(-2).join(' ')) : id;
+  });
+  bar.innerHTML =
+    '<div class="cb-teams">Vergelijken: <b>'+names.join('</b> vs <b>')+'</b></div>' +
+    '<button class="cancel-cmp" id="cmpCancel">Annuleren</button>' +
+    '<button class="compare-btn" id="cmpStart">Vergelijk →</button>';
+  document.body.appendChild(bar);
+  document.getElementById('cmpCancel').addEventListener('click', () => {
+    compareIds.clear();
+    document.querySelectorAll('.cmp-check').forEach(ch=>{ ch.classList.remove('checked'); ch.textContent=''; });
+    removeCompareBar();
+  });
+  document.getElementById('cmpStart').addEventListener('click', startCompare);
+}
+
+function removeCompareBar() {
+  document.getElementById('cmpBar')?.remove();
+}
+
+async function startCompare() {
+  const ids = [...compareIds];
+  const teams = ids.map(id => TR[id] || getTeams().find(t=>t.id===id)).filter(Boolean);
+  if (teams.length < 2) return;
+
+  const myGen = ++gen;
+  initCompareMode();
+  removeCompareBar();
+  destroyCharts();
+
+  const M = document.getElementById('M');
+  M.innerHTML =
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">' +
+      '<button class="btn-ghost" data-action="home">← Terug</button>' +
+      '<h2 style="font-size:1.2rem;font-weight:700;letter-spacing:-.3px">Vergelijking</h2>' +
+    '</div>' +
+    '<div class="nd" style="padding:40px"><span class="spin" style="font-size:1.4rem">⟳</span><br><br>Statistieken ophalen…</div>';
+
+  // Laad alle teams parallel
+  const results = await Promise.allSettled(teams.map(async t => {
+    const key = cacheKey(t.code,t.type,t.nr);
+    let m = getCached(key);
+    if (!m) {
+      const [resXml,prgXml] = await Promise.allSettled([
+        fetchRSS(teamUrl(t.code,t.type,t.nr)),
+        fetchRSS(programmaUrl(t.code,t.type,t.nr))
+      ]);
+      const played  = resXml.status==='fulfilled' ? parseRSS(resXml.value) : [];
+      const planned = prgXml.status==='fulfilled' ? parseRSS(prgXml.value) : [];
+      const playedTs = new Set(played.filter(x=>x.ts).map(x=>x.ts));
+      m = [...played, ...planned.filter(x=>x.ts&&!playedTs.has(x.ts))];
+      setCached(key,m);
+    }
+    return { team: t, matches: enrichHA(m,t.name).sort((a,b)=>(a.ts||0)-(b.ts||0)) };
+  }));
+
+  if (myGen!==gen) return;
+
+  const loaded = results.filter(r=>r.status==='fulfilled').map(r=>r.value);
+  if (!loaded.length) { M.innerHTML = '<div class="err">Kon geen data ophalen.</div>'; return; }
+
+  renderCompare(loaded, M);
+}
+
+function renderCompare(data, M) {
+  // Bereken stats per team
+  const stats = data.map(({team,matches}) => {
+    const played = matches.filter(m=>m.result!==null);
+    const wins   = played.filter(m=>m.result==='W').length;
+    const losses = played.filter(m=>m.result==='L').length;
+    const pts    = played.reduce((s,m)=>s+(m.points||0),0);
+    const maxPts = played.length*3;
+    const eff    = maxPts ? Math.round(pts/maxPts*100) : 0;
+    const winPct = played.length ? Math.round(wins/played.length*100) : 0;
+    const homeW  = played.filter(m=>m.isHome&&m.result==='W').length;
+    const homeG  = played.filter(m=>m.isHome).length;
+    const awayW  = played.filter(m=>!m.isHome&&m.result==='W').length;
+    const awayG  = played.filter(m=>!m.isHome).length;
+    // Set winratio per set
+    const withSets = played.filter(m=>m.sets.length>=3);
+    const setWin = [0,1,2].map(i=>{
+      const rel = withSets.filter(m=>m.sets.length>i);
+      if(!rel.length)return null;
+      const sw = rel.filter(m=>m.isHome?m.sets[i][0]>m.sets[i][1]:m.sets[i][1]>m.sets[i][0]);
+      return Math.round(sw.length/rel.length*100);
+    });
+    return { team, played:played.length, wins, losses, pts, maxPts, eff, winPct,
+             homeW, homeG, awayW, awayG, setWin };
+  });
+
+  // Beste waarden bepalen
+  const maxWinPct = Math.max(...stats.map(s=>s.winPct));
+  const maxEff    = Math.max(...stats.map(s=>s.eff));
+  const maxPts    = Math.max(...stats.map(s=>s.pts));
+
+  const cols = stats.map(s => {
+    const bars = [
+      { label:'Winratio', val:s.winPct, max:100, color: s.winPct>=60?'green':s.winPct>=40?'':'red', unit:'%' },
+      { label:'Efficiëntie', val:s.eff, max:100, color: s.eff>=70?'green':s.eff>=40?'':'red', unit:'%' },
+      { label:'Thuis W%', val:s.homeG?Math.round(s.homeW/s.homeG*100):0, max:100, unit:'%' },
+      { label:'Uit W%',   val:s.awayG?Math.round(s.awayW/s.awayG*100):0, max:100, unit:'%' },
+    ];
+    return '<div class="cmp-col">' +
+      '<div class="cmp-col-header">' +
+        '<h3>'+esc(s.team.name)+'</h3>' +
+        '<div class="cmh-meta">'+esc(s.team.code)+' · '+esc(typeLabel(s.team.type))+' '+s.team.nr+'</div>' +
+      '</div>' +
+      '<div class="cmp-stat-row">' +
+        '<div class="cmp-stat"><div class="cv">'+s.played+'</div><div class="cl">Gespeeld</div></div>' +
+        '<div class="cmp-stat'+(s.winPct===maxWinPct?' best':'')+'"><div class="cv">'+s.wins+'</div><div class="cl">Gewonnen</div></div>' +
+        '<div class="cmp-stat"><div class="cv">'+s.losses+'</div><div class="cl">Verloren</div></div>' +
+        '<div class="cmp-stat'+(s.pts===maxPts?' best':'')+'"><div class="cv">'+s.pts+'</div><div class="cl">Punten</div></div>' +
+      '</div>' +
+      '<div class="cmp-bar-wrap">' +
+        bars.map(b=>'<div class="cmp-bar-label">'+b.label+' ('+b.val+b.unit+')</div>' +
+          '<div class="cmp-bar"><div class="cmp-bar-fill '+b.color+'" style="width:'+Math.round(b.val/b.max*100)+'%"></div></div>'
+        ).join('') +
+        (s.setWin[0]!==null ? '<div class="cmp-bar-label">Set 1 winratio ('+s.setWin[0]+'%)</div><div class="cmp-bar"><div class="cmp-bar-fill" style="width:'+s.setWin[0]+'%"></div></div>' : '') +
+        (s.setWin[1]!==null ? '<div class="cmp-bar-label">Set 2 winratio ('+s.setWin[1]+'%)</div><div class="cmp-bar"><div class="cmp-bar-fill" style="width:'+s.setWin[1]+'%"></div></div>' : '') +
+        (s.setWin[2]!==null ? '<div class="cmp-bar-label">Set 3 winratio ('+s.setWin[2]+'%)</div><div class="cmp-bar"><div class="cmp-bar-fill" style="width:'+s.setWin[2]+'%"></div></div>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  M.innerHTML =
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">' +
+      '<button class="btn-ghost" data-action="home">← Terug</button>' +
+      '<h2 style="font-size:1.2rem;font-weight:700;letter-spacing:-.3px">Vergelijking · '+stats.length+' teams</h2>' +
+    '</div>' +
+    '<div class="compare-grid">'+cols+'</div>' +
+    '<div style="font-size:.76rem;color:var(--gray-400);text-align:center;font-family:var(--mono);margin-top:8px">'+
+      '<span style="color:var(--green)">■</span> Beste waarde &nbsp;'+
+      '<span style="color:var(--red)">■</span> Aandachtspunt (winratio/eff. &lt;40%)'+
+    '</div>';
+}
+
+// ═══════════════════════════════════════════
+//  LOAD TEAM
+// ═══════════════════════════════════════════
+function programmaUrl(code,type,nr) {
+  return EXPORT+'/team/'+code.toUpperCase()+'/'+type+'/'+nr+'/programma.rss';
+}
+
+async function loadTeam(team) {
+  const myGen = ++gen;
+  destroyCharts();
+  document.getElementById('SB').classList.remove('open');
+
+  const M = document.getElementById('M');
+  M.innerHTML =
+    mkBanner(team,true) +
+    '<div id="TC"><div class="nd">⏳ Gegevens ophalen…</div></div>';
+
+  const key     = cacheKey(team.code,team.type,team.nr);
+  const keyPrg  = 'prg__'+cacheKey(team.code,team.type,team.nr);
+  let allMatches = getCached(key);
+
+  if (!allMatches) {
+    try {
+      // Haal uitslagen én programma tegelijk op
+      const [resXml, prgXml] = await Promise.allSettled([
+        fetchRSS(teamUrl(team.code,team.type,team.nr)),
+        fetchRSS(programmaUrl(team.code,team.type,team.nr))
+      ]);
+
+      if (myGen!==gen) return;
+
+      const played  = resXml.status==='fulfilled' ? parseRSS(resXml.value) : [];
+      const planned = prgXml.status==='fulfilled' ? parseRSS(prgXml.value) : [];
+
+      if (!played.length && !planned.length) throw new Error('Geen data gevonden. Controleer de clubcode en het teamnummer.');
+
+      // Combineer: programma-items die nog geen uitslag hebben
+      const playedTs = new Set(played.filter(m=>m.ts).map(m=>m.ts));
+      const futurePlanned = planned.filter(m => m.ts && !playedTs.has(m.ts));
+
+      allMatches = [...played, ...futurePlanned];
+      setCached(key, allMatches);
+    } catch(e) {
+      if (myGen!==gen) return;
+      const banner = M.querySelector('.team-banner');
+      if (banner) {
+        const bl = banner.querySelector('.badge-loading');
+        if (bl) bl.outerHTML = '<button class="btn-refresh" data-action="refresh" data-tid="'+esc(team.id)+'">🔄 Opnieuw proberen</button>';
+      }
+      document.getElementById('TC').innerHTML =
+        '<div class="err"><b>⚠️ Kon data niet laden</b><br><small>'+esc(e.message)+'</small><br><br>'+
+        '<small style="color:#7c2d12">Controleer je internetverbinding en probeer het opnieuw.</small></div>';
+      return;
+    }
+  }
+  if (myGen!==gen) return;
+
+  // Sorteer: nieuwste eerst (meest recent bovenaan)
+  allMatches = enrichHA(allMatches,team.name).sort((a,b)=>(b.ts||0)-(a.ts||0));
+
+  // Banner bijwerken
+  M.innerHTML = mkBanner(team,false) + '<div id="TC"></div>';
+
+  // Sla op indien nieuw
+  const savedTeams = getTeams();
+  if (!savedTeams.find(t=>t.id===team.id)) { savedTeams.push(team); saveTeams(savedTeams); }
+
+  renderVolleyball(allMatches,team);
+}
+
+function mkBanner(team,loading) {
+  return '<div class="team-banner fade-up">'+
+    '<button class="back-btn" data-action="home">←</button>'+
+    '<div class="banner-ico">🏐</div>'+
+    '<div class="banner-info">'+
+      '<h2>'+esc(team.name)+'</h2>'+
+      '<div class="banner-meta">'+esc(team.code)+' · <b>'+esc(team.type)+'</b> · team '+team.nr+' · seizoen 2025-2026</div>'+
+    '</div>'+
+    (loading
+      ? '<div class="badge-loading"><span class="spin">⟳</span> Laden</div>'
+      : '<button class="btn-refresh" data-action="refresh" data-tid="'+esc(team.id)+'">🔄 Vernieuwen</button>') +
+  '</div>';
+}
+
+function refreshTeam(tid) {
+  const team=TR[tid];
+  if(!team)return;
+  delCached(cacheKey(team.code,team.type,team.nr));
+  loadTeam(team);
+}
+
+// ═══════════════════════════════════════════
+//  RENDER VOLLEYBALL
+// ═══════════════════════════════════════════
+function renderVolleyball(matches,team) {
+  const played  = matches.filter(m=>m.result!==null);
+  const future  = matches.filter(m=>m.result===null);
+  const wins    = played.filter(m=>m.result==='W');
+  const losses  = played.filter(m=>m.result==='L');
+  const pts     = played.reduce((s,m)=>s+(m.points||0),0);
+  const maxPts  = played.length*3;
+  const winPct  = played.length?Math.round(wins.length/played.length*100):0;
+  const homeP   = played.filter(m=>m.isHome);
+  const awayP   = played.filter(m=>!m.isHome);
+  const homeW   = homeP.filter(m=>m.result==='W').length;
+  const awayW   = awayP.filter(m=>m.result==='W').length;
+  // played is al nieuwste-eerst (gesorteerd in loadTeam)
+  // Recente vorm: meest recente 8, getoond oudste→recent (links→rechts)
+  const recent     = played.slice(0,8).reverse();
+  // Tabel gebruikt played direct (nieuwste bovenaan)
+  const playedDesc = played;
+
+  const withSets=played.filter(m=>m.sets.length>=3);
+  const setSt=[0,1,2,3,4].map(i=>{
+    const rel=withSets.filter(m=>m.sets.length>i);
+    if(rel.length<2)return null;
+    const sw=rel.filter(m=>m.isHome?m.sets[i][0]>m.sets[i][1]:m.sets[i][1]>m.sets[i][0]);
+    return{set:i+1,total:rel.length,wins:sw.length,pct:Math.round(sw.length/rel.length*100)};
+  }).filter(Boolean);
+
+  const sd={};
+  played.forEach(m=>{if(m.scoreStr)sd[m.scoreStr]=(sd[m.scoreStr]||0)+1;});
+
+  // rpArr voor grafiek: chronologisch (oudste→nieuwste), dus reversed
+  let rp=0;
+  const rpArr=[...played].reverse().map(m=>{rp+=(m.points||0);return rp;});
+
+  const TC=document.getElementById('TC');
+  TC.innerHTML =
+    // Stats
+    '<div class="stat-row fade-up">' +
+      sv('c-blue','Gespeeld',played.length,future.length+' gepland') +
+      sv('c-green','Gewonnen',wins.length,winPct+'% winratio') +
+      sv('c-red','Verloren',losses.length,'') +
+      sv('','Punten',pts,'van max. '+maxPts) +
+      sv('','Efficiëntie',(maxPts?Math.round(pts/maxPts*100):0)+'%','') +
+    '</div>' +
+
+    // Tabs
+    '<div class="tabs-wrap"><div class="tabs">' +
+      '<button class="tab on" data-pane="tr">Uitslagen</button>' +
+      '<button class="tab" data-pane="tp">Programma</button>' +
+      '<button class="tab" data-pane="ta">Analyse</button>' +
+      '<button class="tab" data-pane="tv" data-loadclub="'+esc(team.code)+'">Meer van '+esc(clubNameFromTeam(team.name))+'</button>' +
+    '</div></div>' +
+
+    // Uitslagen
+    '<div id="tr" class="pane on">' +
+      (recent.length
+        ? '<div class="sl">Recente vorm <span style="font-weight:400;color:var(--gray-400)">— ← oudst &nbsp; meest recent →</span></div>' +
+          '<div class="form-row">' +
+            recent.map(m=>'<div class="fd '+m.result+'" title="'+esc(m.dateStr)+' – '+esc(m.opponent)+' '+m.scoreStr+'">'+m.result+'</div>').join('') +
+            '<span class="form-lbl">laatste '+recent.length+' wedstrijden</span>' +
+          '</div>'
+        : '') +
+      '<div class="tcard"><table>' +
+        '<thead><tr><th>Datum</th><th>Tijd</th><th>Loc.</th><th>Tegenstander</th><th>Stand</th><th>Resultaat</th><th>Pnt</th></tr></thead>' +
+        '<tbody>' +
+          (playedDesc.length
+            ? playedDesc.map(m=>
+                '<tr>'+
+                '<td style="font-family:var(--mono);font-size:.78rem;white-space:nowrap">'+m.dateStr+'</td>'+
+                '<td style="font-family:var(--mono);font-size:.78rem;color:var(--gray-400)">'+( m.timeStr||'—')+'</td>'+
+                '<td>'+(m.isHome?'<span class="lh">Thuis</span>':'<span class="la">Uit</span>')+'</td>'+
+                '<td><strong>'+esc(m.opponent||'—')+'</strong>'+
+                  (m.venue?' <span style="font-size:.72rem;color:var(--gray-400)">· '+esc(m.venue)+'</span>':'')+
+                  (m.link?' <a href="'+esc(m.link)+'" target="_blank" style="color:var(--blue);font-size:.7rem;font-family:var(--mono)">↗</a>':'')+'</td>'+
+                '<td class="score">'+m.scoreStr+'</td>'+
+                '<td><span class="bdg b'+m.result+'">'+(m.result==='W'?'Gewonnen':'Verloren')+'</span></td>'+
+                '<td class="pts-val pts-'+m.points+'">'+m.points+'</td>'+
+                '</tr>'
+              ).join('')
+            : '<tr><td colspan="7" class="nd">Nog geen gespeelde wedstrijden</td></tr>') +
+        '</tbody></table></div>' +
+    '</div>' +
+
+    // Programma
+    '<div id="tp" class="pane">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
+        '<span style="font-size:.82rem;color:var(--gray-400)">'+future.length+' aankomende wedstrijd'+(future.length!==1?'en':'')+'</span>' +
+        '<a href="'+EXPORT+'/team/'+team.code.toUpperCase()+'/'+team.type+'/'+team.nr+'/programma.ics" target="_blank" '+
+           'style="display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;color:var(--blue);text-decoration:none;border:1px solid var(--blue);border-radius:6px;padding:4px 10px" '+
+           'title="Importeer in Apple Kalender, Google Agenda, Outlook e.d.">'+
+          '📅 iCal exporteren' +
+        '</a>'+
+      '</div>'+
+      '<div class="tcard"><table>' +
+        '<thead><tr><th>Datum</th><th>Tijd</th><th>Thuisploeg</th><th>Uitploeg</th><th>Locatie</th></tr></thead>' +
+        '<tbody>' +
+          (future.length
+            ? future.map(m=>'<tr>'+
+                '<td style="font-family:var(--mono);font-size:.78rem;white-space:nowrap">'+m.dateStr+'</td>'+
+                '<td style="font-family:var(--mono);font-size:.78rem;color:var(--gray-400)">'+(m.timeStr||'—')+'</td>'+
+                '<td>'+esc(m.thuis)+'</td>'+
+                '<td>'+esc(m.uit)+'</td>'+
+                '<td style="font-size:.78rem;color:var(--gray-400)">'+(m.venue?esc(m.venue):'—')+'</td>'+
+              '</tr>').join('')
+            : '<tr><td colspan="5" class="nd">Geen programma in de feed</td></tr>') +
+        '</tbody></table></div>' +
+    '</div>' +
+
+    // Analyse
+    '<div id="ta" class="pane">' +
+      (played.length<3?'<div class="info-box">⏳ Nog onvoldoende data voor analyse. Kom later terug!</div>':'') +
+      '<div class="chart-grid">' +
+        (played.length>=3
+          ? '<div class="cc"><h3>Puntenscore seizoen</h3><div class="cs">Cumulatief — vlakke fase wijst op moeilijke periode.</div><canvas id="cPts"></canvas></div>' +
+            '<div class="cc"><h3>Score-verdeling</h3><div class="cs">3-0/3-1 = dominantie, 3-2 = veerkracht.</div><canvas id="cSco"></canvas></div>'
+          : '') +
+        (setSt.length>=3
+          ? '<div class="cc"><h3>Set-voor-set winratio</h3><div class="cs">Structurele zwaktes per set ('+withSets.length+' wedstrijden).</div><canvas id="cSet"></canvas></div>'
+          : '') +
+        (homeP.length>=2&&awayP.length>=2
+          ? '<div class="cc"><h3>Thuis vs Uit</h3><div class="cs">Winstpercentage eigen veld vs uitwedstrijden.</div><canvas id="cHAw"></canvas></div>'
+          : '') +
+      '</div>' +
+      '<div class="sl">Slimme inzichten</div>' +
+      '<div class="ins-grid" id="IG"></div>' +
+    '</div>' +
+
+    // Meer van deze vereniging
+    '<div id="tv" class="pane">' +
+      '<div class="nd" style="padding:20px;color:var(--gray-400)">Klik op het tabblad om teams van <b>'+esc(team.code)+'</b> te laden.</div>' +
+    '</div>';
+
+  // Charts
+  if(played.length>=3){
+    mkChart('cPts',{type:'line',data:{
+      labels:played.map((_,i)=>'W'+(i+1)),
+      datasets:[{label:'Punten',data:rpArr,borderColor:'#1a6ef5',backgroundColor:'rgba(26,110,245,.06)',fill:true,tension:.35,pointRadius:3,pointBackgroundColor:'#1a6ef5'}]
+    },options:cOpts()});
+    const sk=Object.keys(sd).sort();
+    if(sk.length)mkChart('cSco',{type:'doughnut',data:{
+      labels:sk.map(k=>{const[a,b]=k.split('-').map(Number);return a>b?'Won '+k:'Verloren '+k;}),
+      datasets:[{data:sk.map(k=>sd[k]),backgroundColor:sk.map(k=>{const[a,b]=k.split('-').map(Number);return a>b?'rgba(22,163,74,.8)':'rgba(220,38,38,.8)';}),borderColor:'#fff',borderWidth:3}]
+    },options:{plugins:{legend:{position:'right',labels:{color:'#737373',font:{size:11,family:'DM Mono'},padding:12}}},responsive:true}});
+  }
+  if(setSt.length>=3)mkChart('cSet',{type:'bar',data:{
+    labels:setSt.map(s=>'Set '+s.set),
+    datasets:[{label:'Gewonnen %',data:setSt.map(s=>s.pct),backgroundColor:setSt.map(s=>s.pct>=60?'rgba(22,163,74,.8)':s.pct>=40?'rgba(217,119,6,.8)':'rgba(220,38,38,.8)'),borderRadius:6,borderSkipped:false}]
+  },options:cOpts({max:100,unit:'%'})});
+  if(homeP.length>=2&&awayP.length>=2)mkChart('cHAw',{type:'bar',data:{
+    labels:['Thuis W','Thuis V','Uit W','Uit V'],
+    datasets:[{data:[homeW,homeP.length-homeW,awayW,awayP.length-awayW],backgroundColor:['rgba(22,163,74,.75)','rgba(220,38,38,.65)','rgba(22,163,74,.4)','rgba(220,38,38,.35)'],borderRadius:6,borderSkipped:false}]
+  },options:cOpts()});
+
+  genInsights(played,setSt,sd,homeP,awayP,homeW,awayW,pts,maxPts);
+}
+
+function sv(cl,l,v,s) {
+  return '<div class="sc '+cl+'"><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(s?'<div class="s">'+s+'</div>':'')+'</div>';
+}
+function cOpts({max=null,unit=''}={}) {
+  return{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{color:'#a3a3a3',font:{size:10,family:'DM Mono'}},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{ticks:{color:'#a3a3a3',font:{size:10,family:'DM Mono'},callback:v=>v+unit},grid:{color:'rgba(0,0,0,.04)'},beginAtZero:true,...(max?{max}:{})}}};
+}
+function mkChart(id,cfg){const el=document.getElementById(id);if(!el)return;charts[id]=new Chart(el,cfg);}
+function destroyCharts(){Object.values(charts).forEach(c=>{try{c.destroy();}catch{}});charts={};}
+
+// ═══════════════════════════════════════════
+//  MEER VAN VERENIGING
+// ═══════════════════════════════════════════
+async function loadVerenigingTab(code, paneEl) {
+  paneEl.innerHTML = '<div class="nd" style="padding:28px"><span class="spin">⟳</span> Gegevens ophalen…</div>';
+  try {
+    // Haal alle uitslagen van de vereniging op
+    const xml = await fetchRSS(EXPORT+'/vereniging/'+code.toUpperCase()+'/resultaten.rss');
+    const allItems = parseRSS(xml);
+    if (!allItems.length) throw new Error('Geen wedstrijden gevonden');
+
+    // Bepaal eigen teams via frequentie: elk eigen team speelt N wedstrijden,
+    // tegenstanders verschijnen slechts 1-2 keer. 
+    // Tellen per volledige teamnaam.
+    const nameCount = {};
+    allItems.forEach(m => {
+      [m.thuis, m.uit].forEach(n => { if(n) nameCount[n] = (nameCount[n]||0)+1; });
+    });
+
+    // Drempel: minstens 20% van het aantal items — dat zijn eigen teams
+    const threshold = Math.max(2, Math.ceil(allItems.length * 0.18));
+    const ownNames  = new Set(Object.entries(nameCount).filter(([,cnt])=>cnt>=threshold).map(([n])=>n));
+
+    // Groepeer wedstrijden per eigen teamnaam
+    const byTeam = {};
+    allItems.forEach(m => {
+      const own = [m.thuis,m.uit].find(n=>ownNames.has(n));
+      if (!own) return;
+      if (!byTeam[own]) byTeam[own] = [];
+      byTeam[own].push(m);
+    });
+
+    if (!Object.keys(byTeam).length) {
+      // Fallback: toon alle items (de eerste 20) gesorteerd op datum
+      const sorted = allItems.sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,20);
+      paneEl.innerHTML =
+        '<div style="margin-bottom:12px;font-size:.83rem;color:var(--gray-400)">Recente wedstrijden van vereniging '+esc(code)+'</div>'+
+        '<div class="tcard"><table>' +
+          '<thead><tr><th>Datum</th><th>Thuis</th><th>Uit</th><th>Stand</th></tr></thead>'+
+          '<tbody>'+sorted.map(m=>
+            '<tr>'+
+            '<td style="font-size:.78rem;font-family:var(--mono)">'+m.dateStr+'</td>'+
+            '<td>'+esc(m.thuis)+'</td>'+
+            '<td>'+esc(m.uit)+'</td>'+
+            '<td class="score">'+m.scoreStr+'</td>'+
+            '</tr>'
+          ).join('')+'</tbody></table></div>';
+      return;
+    }
+
+    // TYPE_RE om teamnummer te herkennen
+    const TYPE_RE = /\b(DS|HS|DA|DB|DC|DD|HA|HB|HC|JA|JB|JC|MA|MB|MC|GEM)\s*(\d+)\b/i;
+
+    // Bouw teamlijst met quickstats
+    const teamCards = Object.entries(byTeam)
+      .sort(([a],[b]) => a.localeCompare(b))
+      .map(([name, matches]) => {
+        const played = matches.filter(m=>m.result!==null);
+        const isHomeArr = played.map(m => m.thuis===name);
+        const wins = played.filter((m,i) => isHomeArr[i] ? m.sw>m.sl : m.sl>m.sw).length;
+        const pct  = played.length ? Math.round(wins/played.length*100) : 0;
+
+        // Bouw team-object voor navigatie
+        const typeMatch = name.match(TYPE_RE);
+        let teamObj = null;
+        if (typeMatch) {
+          const type = rawTypeToApiType(typeMatch[1].toUpperCase());
+          const nr   = +typeMatch[2];
+          const cn   = name.replace(TYPE_RE,'').replace(/[-–\s]+$/,'').trim();
+          teamObj = { id: teamId(code,type,nr), name: cn+' '+typeLabel(type)+' '+nr, code: code.toUpperCase(), type, nr };
+          TR[teamObj.id] = teamObj;
+        }
+
+        // Recent resultaten (laatste 5)
+        const recent5 = matches.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,5);
+        const dots = recent5.reverse().map(m=>{
+          const isHome = m.thuis===name;
+          const res = m.result ? (isHome ? (m.sw>m.sl?'W':'L') : (m.sl>m.sw?'W':'L')) : 'P';
+          return '<div class="fd '+res+'" style="width:22px;height:22px;font-size:.62rem">'+res+'</div>';
+        }).join('');
+
+        const saveBtn = teamObj
+          ? '<button onclick="saveTeamFromVer('+JSON.stringify(teamObj).replace(/"/g,'&quot;')+')" '+
+              'style="font-size:.72rem;border:1px solid var(--blue);color:var(--blue);background:none;border-radius:5px;padding:2px 8px;cursor:pointer;font-family:var(--sans)" '+
+              'title="Opslaan als favoriet">+ Opslaan</button>'
+          : '';
+
+        return '<div class="team-tile"'+
+          (teamObj ? ' data-tid="'+esc(teamObj.id)+'"' : '')+
+          ' style="flex-direction:column;align-items:flex-start;gap:8px;cursor:'+
+          (teamObj?'pointer':'default')+'">'+
+          '<div style="display:flex;align-items:center;gap:10px;width:100%">'+
+            '<div class="team-tile-ico">🏐</div>'+
+            '<div style="flex:1">'+
+              '<div class="team-tile-name">'+esc(name)+'</div>'+
+              '<div class="team-tile-meta">'+
+                (played.length ? played.length+' gespeeld · '+wins+'W · '+pct+'%' : 'geen uitslagen')+
+              '</div>'+
+            '</div>'+
+            saveBtn+
+          '</div>'+
+          (dots ? '<div style="display:flex;gap:3px">'+dots+'</div>' : '')+
+        '</div>';
+      }).join('');
+
+    paneEl.innerHTML =
+      '<div style="margin-bottom:14px;font-size:.83rem;color:var(--gray-400)">'+
+        Object.keys(byTeam).length+' team'+(Object.keys(byTeam).length!==1?'s':'')+
+        ' gevonden. Klik om te openen, + om op te slaan als favoriet.'+
+      '</div>'+
+      '<div class="teams-list">'+teamCards+'</div>';
+
+  } catch(e) {
+    paneEl.innerHTML = '<div class="err">Kon gegevens niet laden: '+esc(e.message)+'</div>';
+  }
+}
+
+function saveTeamFromVer(team) {
+  const teams = getTeams();
+  if (!teams.find(t=>t.id===team.id)) {
+    teams.push(team);
+    saveTeams(teams);
+    // Feedback
+    const btn = document.querySelector('[data-tid="'+team.id+'"] button');
+    if (btn) { btn.textContent='✓ Opgeslagen'; btn.style.color='var(--green)'; btn.style.borderColor='var(--green)'; btn.disabled=true; }
+  }
+}
+
+// ═══════════════════════════════════════════
+//  INSIGHTS
+// ═══════════════════════════════════════════
+function genInsights(played,setSt,sd,homeP,awayP,homeW,awayW,pts,maxPts) {
+  const ins=[];
+  if(!played.length){document.getElementById('IG').innerHTML='<p class="nd">Speel meer wedstrijden voor inzichten.</p>';return;}
+
+  if(setSt.length>=3){
+    const worst=[...setSt].sort((a,b)=>a.pct-b.pct)[0];
+    const best=[...setSt].sort((a,b)=>b.pct-a.pct)[0];
+    if(worst.pct<42&&worst.total>=3)ins.push({c:'neg',i:'📉',t:'Set '+worst.set+' is structureel zwak',p:'Slechts '+worst.pct+'% gewonnen ('+worst.total+'x). Gerichte training op dit moment loont.'});
+    if(best.pct>65&&best.total>=3)ins.push({c:'pos',i:'💪',t:'Set '+best.set+' is jullie kracht',p:best.pct+'% gewonnen — gebruik dit mentale fundament als buffer voor zwakkere sets.'});
+    const tb=setSt.find(s=>s.set===5);
+    if(tb&&tb.total>=2)ins.push({c:tb.pct>=50?'pos':'neg',i:'⚡',t:'Tie-break: '+tb.wins+'/'+tb.total+' gewonnen',p:tb.pct>=50?'Goed presteren onder druk.':'Tie-break strategie en mentale fitheid verdienen extra aandacht.'});
+  }
+  if(homeP.length>=3&&awayP.length>=3){
+    const hp=homeW/homeP.length,ap=awayW/awayP.length;
+    if(hp-ap>0.3)ins.push({c:'neg',i:'✈️',t:'Moeite met uitwedstrijden',p:'Thuis '+Math.round(hp*100)+'% vs uit '+Math.round(ap*100)+'%. Warming-up routine voor uitwedstrijden kan helpen.'});
+    else if(ap-hp>0.2)ins.push({c:'pos',i:'🏟️',t:'Sterk op vreemde bodem',p:'Uit ('+Math.round(ap*100)+'%) beter dan thuis ('+Math.round(hp*100)+'%).'});
+  }
+  const res=played.map(m=>m.result);
+  let mxW=0,mxL=0,cW=0,cL=0;
+  res.forEach(r=>{r==='W'?(cW++,cL=0,mxW=Math.max(mxW,cW)):(cL++,cW=0,mxL=Math.max(mxL,cL));});
+  if(mxW>=4)ins.push({c:'pos',i:'🔥',t:'Winserie van '+mxW,p:mxW+' overwinningen op rij — uitstekend collectief momentum.'});
+  if(mxL>=3)ins.push({c:'neg',i:'❄️',t:'Verliesreeks van '+mxL,p:'Evaluatie na 2 verliezen op rij kan verdere reeks voorkomen.'});
+  const r5=played.slice(-5);const r5w=r5.filter(m=>m.result==='W').length;
+  if(r5.length===5&&r5w>=4)ins.push({c:'pos',i:'📈',t:'Stijgende lijn',p:'Laatste 5 wedstrijden: '+r5w+'x gewonnen. Uitstekende vorm!'});
+  if(r5.length===5&&r5w<=1)ins.push({c:'neg',i:'📉',t:'Dalende lijn',p:'Slechts '+r5w+'/5 recentelijk gewonnen. Analyse loont.'});
+  const eff=maxPts?Math.round(pts/maxPts*100):0;
+  if(eff>=70)ins.push({c:'pos',i:'🏆',t:'Hoge efficiëntie: '+eff+'%',p:pts+' van max. '+maxPts+' punten — bovengemiddeld seizoen.'});
+  else if(eff<35&&played.length>=5)ins.push({c:'warn',i:'📊',t:'Lage efficiëntie: '+eff+'%',p:'Focus op 3-2 overwinningen verbetert de score snel.'});
+  const tight=(sd['3-2']||0)+(sd['2-3']||0);
+  if(tight>=3)ins.push({c:'neu',i:'⚖️',t:tight+'× naar 5 sets',p:'Veel spannende 5-setters — moeite om vroeg te beslissen.'});
+  if(!ins.length)ins.push({c:'neu',i:'📋',t:'Meer data nodig',p:'Meer gespeelde wedstrijden geven betere patroonherkenning.'});
+
+  document.getElementById('IG').innerHTML=ins.map(i=>
+    '<div class="ins '+i.c+' fade-up"><div class="ins-i">'+i.i+'</div><div><h4>'+i.t+'</h4><p>'+i.p+'</p></div></div>'
+  ).join('');
+}
+
+// ═══════════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════════
+const SI=document.getElementById('SI');
+const SB=document.getElementById('SB');
+let sTimer=null;
+
+SI.addEventListener('input',()=>{ clearTimeout(sTimer); sTimer=setTimeout(()=>updateSugg(SI.value.trim()),200); });
+SI.addEventListener('keydown',e=>{ if(e.key==='Enter')doSearch(); });
+// Search triggered via Enter key or hero button (see renderHome)
+document.addEventListener('click',e=>{ if(!e.target.closest('.nav-search')&&!e.target.closest('.srch-wrap'))SB.classList.remove('open'); });
+
+function clearSearch(){SI.value='';SB.classList.remove('open');SI.focus();}
+
+async function updateSugg(q) {
+  if(q.length<2){SB.classList.remove('open');return;}
+  const teams=getTeams().filter(t=>t.name.toLowerCase().includes(q.toLowerCase())||t.code.toLowerCase().includes(q.toLowerCase()));
+  const clubs=searchLocalClubs(q);
+  let html='';
+  if(teams.length){
+    html+='<div class="sdiv">Opgeslagen teams</div>'+teams.map(t=>
+      '<div class="si" data-tid="'+esc(t.id)+'">'+
+      '<div class="si-ico">🏐</div>'+
+      '<div><div class="si-name">'+esc(t.name)+'</div><div class="si-meta">'+t.code+' · '+t.type+' '+t.nr+'</div></div>'+
+      '<span class="si-tag">opgeslagen</span></div>'
+    ).join('');
+  }
+  if(clubs.length){
+    html+='<div class="sdiv">Clubs</div>'+clubs.map(c=>
+      '<div class="si" data-club="'+esc(c.code)+'">'+
+      '<div class="si-ico">🏟️</div>'+
+      '<div><div class="si-name">'+esc(c.name)+'</div><div class="si-meta">'+esc(c.city||c.code)+'</div></div>'+
+      '<span class="si-tag">'+c.code+'</span></div>'
+    ).join('');
+  }
+  if(html){SB.innerHTML=html;SB.classList.add('open');}
+  else SB.classList.remove('open');
+}
+
+async function doSearch() {
+  const q=SI.value.trim();if(!q)return;
+  SB.classList.remove('open');
+  const ql=q.toLowerCase();
+  const saved=getTeams().filter(t=>t.name.toLowerCase().includes(ql)||t.code.toLowerCase().includes(ql));
+  if(saved.length===1){TR[saved[0].id]=saved[0];loadTeam(saved[0]);return;}
+  if(saved.length>1){saved.forEach(t=>TR[t.id]=t);showPicker(q,q,saved);return;}
+  const local=searchLocalClubs(q);
+  if(local.length===1){fetchAndShowTeams(local[0].code,local[0].name);return;}
+  if(local.length>1){showClubChoices(q,local);return;}
+  if(/^[a-zA-Z0-9]{5,10}$/.test(q)){fetchAndShowTeams(q.toUpperCase(),'');return;}
+  const online=await searchClubsOnline(q);
+  if(online.length===1){fetchAndShowTeams(online[0].code,online[0].name);return;}
+  if(online.length>1){showClubChoices(q,online);return;}
+  // Niets
+  document.getElementById('M').innerHTML=
+    '<div class="home-hero"><h2>Niets gevonden<br>voor "'+esc(q)+'"</h2>'+
+    '<p>Zoek je clubcode op <a href="https://www.volleybal.nl/competitie" target="_blank" style="color:var(--blue)">volleybal.nl</a> en vul die in. Of gebruik "Team toevoegen".</p></div>';
+}
+
+function showClubChoices(q,clubs) {
+  destroyCharts();
+  const M=document.getElementById('M');
+  M.innerHTML=
+    '<div class="picker-card fade-up">'+
+      '<button class="btn-ghost" data-action="home" style="margin-bottom:14px">← Terug</button>'+
+      '<h2>Meerdere clubs voor "'+esc(q)+'"</h2>'+
+      '<div class="pc-meta">Kies de juiste club</div>'+
+      '<div class="teams-picker-grid">'+
+        clubs.map(c=>'<button class="picker-btn" data-club="'+esc(c.code)+'"><div class="pb-type">'+esc(c.code)+'</div><div class="pb-name">'+esc(c.name)+'</div></button>').join('')+
+      '</div></div>';
+}
+
+function showPicker(label,code,teams) {
+  destroyCharts();
+  teams.forEach(t=>TR[t.id]=t);
+  const M=document.getElementById('M');
+  M.innerHTML=
+    '<div class="picker-card fade-up">'+
+      '<button class="btn-ghost" data-action="home" style="margin-bottom:14px">← Terug</button>'+
+      '<h2>Teams van '+esc(label)+'</h2>'+
+      '<div class="pc-meta">Kies een team om de statistieken te bekijken</div>'+
+      '<div class="teams-picker-grid">'+
+        teams.map(t=>'<button class="picker-btn" data-tid="'+esc(t.id)+'"><div class="pb-type">'+esc(typeLabel(t.type))+'</div><div class="pb-name">'+esc(t.name)+'</div></button>').join('')+
+      '</div></div>';
+}
+
+async function fetchAndShowTeams(code,clubName) {
+  const myGen=++gen;
+  const M=document.getElementById('M');
+  M.innerHTML='<div class="nd" style="padding:60px"><span class="spin" style="font-size:1.5rem">⟳</span><br><br>Teams ophalen voor '+esc(code)+'…</div>';
+  try {
+    const url=EXPORT+'/vereniging/'+code.toUpperCase()+'/resultaten.rss';
+    const xml=await fetchRSS(url);
+    if(myGen!==gen)return;
+    const items=parseRSS(xml);
+    if(!items.length)throw new Error('Geen wedstrijden gevonden voor code '+code);
+
+    // Bepaal welke teams bij deze club horen door te tellen hoe vaak
+    // een teamnaam voorkomt. Eigen teams komen in elke wedstrijd voor
+    // (~N keer), tegenstanders slechts 1-2 keer.
+    const TYPE_RE = /\b(DS|HS|DA|DB|DC|DD|HA|HB|HC|HD|JA|JB|JC|MA|MB|MC|GEM)\s*(\d+)\b/i;
+    
+    // Tel elke volledige teamnaam
+    const nameCounts = {};
+    items.forEach(m=>{
+      [m.thuis,m.uit].forEach(name=>{
+        if(TYPE_RE.test(name)){
+          nameCounts[name]=(nameCounts[name]||0)+1;
+        }
+      });
+    });
+
+    // Drempelwaarde: minimaal 20% van het aantal items, of minimaal 3
+    const threshold = Math.max(3, Math.ceil(items.length * 0.2));
+    const ownNames = Object.entries(nameCounts)
+      .filter(([,cnt])=>cnt>=threshold)
+      .map(([name])=>name);
+
+    // Haal de club-naam op uit de meest voorkomende eigen naam
+    let detectedClubName = clubName;
+    if(!detectedClubName && ownNames.length){
+      detectedClubName = ownNames[0].replace(TYPE_RE,'').trim();
+    }
+
+    // Bouw teamSet op uit eigen teams
+    const teamSet={};
+    ownNames.forEach(name=>{
+      const match=name.match(TYPE_RE);
+      if(!match)return;
+      const rt=match[1].toUpperCase();const nr=+match[2];
+      const type=rawTypeToApiType(rt);const k=type+'_'+nr;
+      if(!teamSet[k]){
+        const cn=name.replace(TYPE_RE,'').replace(/[-–\s]+$/,'').trim();
+        teamSet[k]={type,nr,clubName:cn||detectedClubName||code};
+      }
+    });
+
+    // Fallback als detectie mislukt
+    if(!Object.keys(teamSet).length){
+      ['dames','heren'].forEach(type=>{
+        for(let nr=1;nr<=3;nr++)
+          teamSet[type+'_'+nr]={type,nr,clubName:detectedClubName||code};
+      });
+    }
+
+    const teams=Object.entries(teamSet).map(([,v])=>({
+      id:teamId(code,v.type,v.nr),
+      name:v.clubName+' '+typeLabel(v.type)+' '+v.nr,
+      code:code.toUpperCase(),type:v.type,nr:v.nr
+    })).sort((a,b)=>a.type.localeCompare(b.type)||a.nr-b.nr);
+
+    teams.forEach(t=>TR[t.id]=t);
+    if(myGen!==gen)return;
+    showPicker(detectedClubName||code,code,teams);
+  } catch(e) {
+    if(myGen!==gen)return;
+    M.innerHTML=
+      '<div class="home-hero"><h2>Niet gevonden: '+esc(code)+'</h2>'+
+      '<p>'+esc(e.message)+'</p>'+
+      '<p style="margin-top:12px"><a href="https://www.volleybal.nl/competitie" target="_blank" style="color:var(--blue)">Zoek de juiste code op volleybal.nl →</a></p></div>';
+  }
+}
+
+function loadAndSave(team) {
+  const teams=getTeams();
+  if(!teams.find(t=>t.id===team.id)){teams.push(team);saveTeams(teams);}
+  loadTeam(team);
+}
+
+// ═══════════════════════════════════════════
+//  TYPE HELPERS
+// ═══════════════════════════════════════════
+function rawTypeToApiType(r) {
+  const m={'DS':'dames','HS':'heren','DA':'meisjes-a','DB':'meisjes-b','DC':'meisjes-c','DD':'meisjes-d','HA':'jongens-a','HB':'jongens-b','HC':'jongens-c','JA':'jongens-a','JB':'jongens-b','JC':'jongens-c','MA':'meisjes-a','MB':'meisjes-b','MC':'meisjes-c','GEM':'gemengd'};
+  return m[r.toUpperCase()]||'dames';
+}
+// Strip teamtype en nummer van teamnaam: "VV De Boemel DS 1" → "VV De Boemel"
+function clubNameFromTeam(name) {
+  return name.replace(/\s+(DS|HS|DA|DB|DC|DD|HA|HB|HC|HD|JA|JB|JC|MA|MB|MC|GEM)\s*\d+\s*$/i,'').trim() || name;
+}
+function typeLabel(type) {
+  const m={'dames':'DS','heren':'HS','meisjes-a':'DA','meisjes-b':'DB','meisjes-c':'DC','meisjes-d':'DD','jongens-a':'JA','jongens-b':'JB','jongens-c':'JC','gemengd':'GEM'};
+  return m[type]||type;
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ═══════════════════════════════════════════
+//  EVENT DELEGATION
+// ═══════════════════════════════════════════
+document.addEventListener('click',e=>{
+  // Checkbox in vergelijkmodus — ALTIJD eerst checken, vóór tile-handler
+  const ck = e.target.closest('.cmp-check[data-cid]');
+  if (ck) {
+    e.stopPropagation();
+    if (!compareMode) return;
+    const cid = ck.dataset.cid;
+    if (compareIds.has(cid)) {
+      compareIds.delete(cid);
+      ck.classList.remove('checked');
+      ck.textContent = '';
+    } else if (compareIds.size < 4) {
+      compareIds.add(cid);
+      ck.classList.add('checked');
+      ck.textContent = '✓';
+    }
+    updateCompareBar();
+    return;
+  }
+
+  // Tile klikken in vergelijkmodus → toggle checkbox, niet navigeren
+  const tile = e.target.closest('.team-tile[data-tid]');
+  if (tile && compareMode) {
+    const cid = tile.dataset.tid;
+    const ck2 = tile.querySelector('.cmp-check');
+    if (compareIds.has(cid)) {
+      compareIds.delete(cid);
+      ck2?.classList.remove('checked');
+      if (ck2) ck2.textContent = '';
+    } else if (compareIds.size < 4) {
+      compareIds.add(cid);
+      ck2?.classList.add('checked');
+      if (ck2) ck2.textContent = '✓';
+    }
+    updateCompareBar();
+    return;
+  }
+
+  // Opgeslagen team (suggestie of tile) — alleen buiten vergelijkmodus
+  const siTid=e.target.closest('.si[data-tid],.team-tile[data-tid],.picker-btn[data-tid]');
+  if(siTid){
+    SB.classList.remove('open');
+    const id=siTid.dataset.tid;
+    const team=TR[id]||getTeams().find(t=>t.id===id);
+    if(team){TR[team.id]=team;loadTeam(team);}
+    return;
+  }
+  // Club (suggstie of picker-btn)
+  const siClub=e.target.closest('.si[data-club],.picker-btn[data-club]');
+  if(siClub){SB.classList.remove('open');fetchAndShowTeams(siClub.dataset.club,'');return;}
+  // Tabs
+  const tab=e.target.closest('.tab[data-pane]');
+  if(tab){
+    tab.closest('.tabs').querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+    tab.classList.add('on');
+    document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+    const pane = document.getElementById(tab.dataset.pane);
+    if (pane) pane.classList.add('on');
+    // Lazy load vereniging tab on first click
+    if (tab.dataset.pane === 'tv' && tab.dataset.loadclub) {
+      const clubCode = tab.dataset.loadclub;
+      const paneEl = document.getElementById('tv');
+      if (paneEl && paneEl.querySelector('.nd')) {
+        loadVerenigingTab(clubCode, paneEl);
+        delete tab.dataset.loadclub; // only load once
+      }
+    }
+    return;
+  }
+  // cmpToggle knop
+  const tog = e.target.closest('#cmpToggle');
+  if (tog) {
+    compareMode = !compareMode;
+    compareIds.clear();
+    const checks = document.querySelectorAll('.cmp-check');
+    checks.forEach(ch => {
+      ch.style.display = compareMode ? 'flex' : 'none';
+      ch.classList.remove('checked');
+      ch.textContent = '';
+    });
+    tog.textContent = compareMode ? '✕ Annuleren' : '⚖️ Vergelijken';
+    removeCompareBar();
+    return;
+  }
+
+  // data-action
+  const act=e.target.closest('[data-action]');
+  if(act){
+    const a=act.dataset.action;
+    if(a==='home'){initCompareMode();removeCompareBar();renderHome();return;}
+    if(a==='modal'){document.getElementById('OV').classList.add('open');return;}
+    if(a==='modal-close'){document.getElementById('OV').classList.remove('open');return;}
+    if(a==='modal-save'){saveManual();return;}
+    if(a==='refresh'){refreshTeam(act.dataset.tid);return;}
+  }
+});
+
+document.getElementById('OV').addEventListener('click',e=>{
+  if(e.target===document.getElementById('OV'))document.getElementById('OV').classList.remove('open');
+});
+
+// ═══════════════════════════════════════════
+//  MODAL SAVE
+// ═══════════════════════════════════════════
+function saveManual() {
+  const name=document.getElementById('mN').value.trim();
+  const code=document.getElementById('mC').value.trim().toUpperCase();
+  const type=document.getElementById('mT').value;
+  const nr=parseInt(document.getElementById('mNR').value)||1;
+  if(!name||!code){alert('Vul naam en clubcode in.');return;}
+  const team={id:teamId(code,type,nr),name,code,type,nr};
+  TR[team.id]=team;
+  document.getElementById('OV').classList.remove('open');
+  loadAndSave(team);
+}
+
+// ═══════════════════════════════════════════
+//  STARTUP
+// ═══════════════════════════════════════════
+(function(){
+  try{
+    // Wis ALLEEN oude sleutels van de vorige versies, niet de nieuwe
+    ['ss_v2','ss_v1','ss_teams_v1','sportstat_v4','sportstat_v3'].forEach(k=>{try{localStorage.removeItem(k);}catch{}});
+    // Wis oude cache-prefixen
+    try{Object.keys(localStorage).filter(k=>k.startsWith('ssc_')||k.startsWith('ss_cache_')||k.startsWith('sportstat_cache_')).forEach(k=>{try{localStorage.removeItem(k);}catch{}});}catch{}
+  }catch{}
+
+  renderHome();
+  loadClubsDB().catch(()=>{});
+})();
+</script>
+</body>
+</html>
