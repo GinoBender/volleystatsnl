@@ -911,7 +911,7 @@ function renderAddAssocForm() {
   const known = Object.values(knownAssocs).sort((a,b)=>a.name.localeCompare(b.name));
   // Twee kolommen naast elkaar: links instructies+zoeker, rechts handmatige invoer
   return (
-    '<div style="max-width:860px">' +
+    '<div style="max-width:860px;margin:0 auto">' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">' +
 
     // ── Linker kolom: instructies + zoeker ──
@@ -1015,9 +1015,10 @@ async function submitAssoc() {
     const teams = await discoverAllTeams(codeRaw, nameHint);
     if (!teams.length) throw new Error('Geen teams gevonden voor code '+codeRaw);
 
-    // Registreer de vereniging als bekend
+    // Gebruik naam die discoverAllTeams al heeft geregistreerd,
+    // anders nameHint, anders wat al bekend was
     const clubName = nameHint || knownAssocs[codeRaw]?.name || codeRaw;
-    registerAssoc(codeRaw, clubName);
+    if (clubName && clubName !== codeRaw) registerAssoc(codeRaw, clubName);
 
     // Toon teamkiezer i.p.v. direct opslaan
     showTeamPicker(codeRaw, clubName, teams);
@@ -1035,7 +1036,6 @@ function showTeamPicker(code, clubName, teams) {
   const checkItems = teams.map(t => {
     const already = savedIds.has(t.id);
     return '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:background .1s">' +
-      '<input type="checkbox" class="tp-check" data-tid="'+esc(t.id)+'" '+(already?'checked disabled':'')+' ' +
       '<input type="checkbox" class="tp-check" data-tid="'+esc(t.id)+'" '+(already?'checked disabled':'')+' ' +
         'style="width:16px;height:16px;accent-color:var(--blue);flex-shrink:0">' +
       '<span>' +
@@ -1190,6 +1190,20 @@ async function discoverAllTeams(code, nameHint) {
   }
 
   verifiedTeams.sort((a,b) => a.type.localeCompare(b.type) || a.nr-b.nr);
+
+  // Zorg dat de vereniging altijd opgeslagen is in de bekende-registry
+  // (ook als alleen een code is opgegeven zonder naam)
+  if (!knownAssocs[code] || knownAssocs[code].name === code) {
+    // Probeer naam te herleiden uit de gevonden teamsnamen
+    if (verifiedTeams.length) {
+      const sample = verifiedTeams[0].name;
+      const stripped = sample.replace(/\s+(DS|HS|DA|DB|DC|DD|HA|HB|HC|JA|JB|JC|MA|MB|MC|XR|N\d|L\d)\s*\d+\s*$/i,'').trim();
+      if (stripped && stripped !== code) registerAssoc(code, stripped);
+    }
+  }
+  // Altijd opslaan (ook als naam al klopte)
+  saveKnownAssocs();
+
   setAssocStatus('Gevonden: '+verifiedTeams.length+' teams', 'ok');
   return verifiedTeams;
 }
