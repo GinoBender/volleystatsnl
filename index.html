@@ -783,6 +783,103 @@ function doHomeSearch() {
 }
 
 // ═══════════════════════════════════════════
+//  HELPER-FUNCTIES
+// ═══════════════════════════════════════════
+function rawTypeToApiType(r) {
+  const m={
+    'DS':'dames','HS':'heren',
+    'DA':'meisjes-a','MA':'meiden-a',
+    'DB':'meisjes-b','MB':'meiden-b',
+    'DC':'meisjes-c','MC':'meiden-c',
+    'DD':'meisjes-d','MD':'meiden-d',
+    'HA':'jongens-a','JA':'jongens-a',
+    'HB':'jongens-b','JB':'jongens-b',
+    'HC':'jongens-c','JC':'jongens-c',
+    'HD':'jongens-d','JD':'jongens-d',
+    'GEM':'gemengd','XR':'mix-recreatief',
+    'N1':'cmv-niveau-1','N2':'cmv-niveau-2','N3':'cmv-niveau-3','N4':'cmv-niveau-4',
+    'L1':'volley-stars-level-1','L2':'volley-stars-level-2','L3':'volley-stars-level-3',
+    'L4':'volley-stars-level-4','L5':'volley-stars-level-5',
+  };
+  return m[r.toUpperCase()] || r.toLowerCase();
+}
+
+function typeLabel(type) {
+  const m={
+    'dames':'DS','heren':'HS',
+    'meisjes-a':'DA','meiden-a':'MA','meisjes-b':'DB','meiden-b':'MB',
+    'meisjes-c':'DC','meiden-c':'MC','meisjes-d':'DD','meiden-d':'MD',
+    'jongens-a':'JA','jongens-b':'JB','jongens-c':'JC','jongens-d':'JD',
+    'gemengd':'GEM','mix-recreatief':'XR',
+    'cmv-niveau-1':'N1','cmv-niveau-2':'N2','cmv-niveau-3':'N3','cmv-niveau-4':'N4',
+    'volley-stars-level-1':'L1','volley-stars-level-2':'L2','volley-stars-level-3':'L3',
+    'volley-stars-level-4':'L4','volley-stars-level-5':'L5',
+  };
+  return m[type] || type;
+}
+
+// ═══════════════════════════════════════════
+//  DISCOVER TEAMS — van oude versie
+// ═══════════════════════════════════════════
+async function discoverAllTeams(code, nameHint) {
+  const TYPE_RE = /\b(DS|HS|DA|DB|DC|DD|HA|HB|HC|HD|JA|JB|JC|JD|MA|MB|MC|MD|GEM|XR|N[1-4]|L[1-5])\s*(\d*)\b/i;
+
+  // Stap 1: haal de verenigings-RSS op om te weten welke TYPEN bestaan
+  const xml = await fetchRSS(verUrl(code));
+  const allItems = parseRSS(xml);
+  if (!allItems.length) throw new Error('Geen wedstrijden gevonden voor code '+code+'.');
+
+  // Bepaal welke teamTYPEN de club heeft door te kijken naar THUISTEAMS
+  const thuisPerType = {};
+  allItems.forEach(m => {
+    if (!m.thuis) return;
+    const match = m.thuis.match(TYPE_RE);
+    if (!match) return;
+    const type = rawTypeToApiType(match[1].toUpperCase());
+    const nr   = parseInt(match[2]) || 1;
+    if (!thuisPerType[type]) thuisPerType[type] = new Set();
+    thuisPerType[type].add(nr);
+  });
+
+  if (!Object.keys(thuisPerType).length) {
+    throw new Error('Kon geen teamtypen herkennen voor code '+code+'.');
+  }
+
+  // Stap 2: probe alle kandidaat-nummers direct via team-RSS
+  const verifiedTeams = [];
+
+  await Promise.all(Object.entries(thuisPerType).map(async ([type, nrSet]) => {
+    const maxFound = Math.max(...nrSet);
+    const candidates = [];
+    for (let nr = 1; nr <= maxFound + 1; nr++) candidates.push(nr);
+
+    const results = await Promise.all(candidates.map(async nr => {
+      try {
+        const txml = await fetchRSS(teamUrl(code, type, nr));
+        const titems = parseRSS(txml);
+        if (titems.length > 0) return nr;
+      } catch {}
+      return null;
+    }));
+
+    results.forEach(nr => {
+      if (nr !== null) {
+        const clubName = nameHint || code;
+        const name = clubName + ' ' + typeLabel(type) + ' ' + nr;
+        verifiedTeams.push({ id: teamId(code, type, nr), name, code: code.toUpperCase(), type, nr });
+      }
+    });
+  }));
+
+  if (!verifiedTeams.length) {
+    throw new Error('Geen actieve teams gevonden voor code '+code+'.');
+  }
+
+  verifiedTeams.sort((a, b) => a.type.localeCompare(b.type) || a.nr - b.nr);
+  return verifiedTeams;
+}
+
+// ═══════════════════════════════════════════
 //  VERENIGING PAGE
 // ═══════════════════════════════════════════
 async function showAssocPage(code, name) {
@@ -796,28 +893,44 @@ async function showAssocPage(code, name) {
 
   const M = document.getElementById('M');
   M.innerHTML = mkAssocBanner(C, clubName, true) +
-    '<div id="AC"><div class="nd" style="padding:60px"><span class="spin" style="font-size:1.4rem">⟳</span><br><br>Wedstrijden ophalen voor '+esc(clubName)+'…</div></div>';
+    '<div id="AC"><div class="nd" style="padding:60px"><span class="spin" style="font-size:1.4rem">⟳</span><br><br>Teams ontdekken voor '+esc(clubName)+'…</div></div>';
 
-  const cacheK = 'assoc__'+C;
-  let allItems = getCached(cacheK);
+  try {
+    const teams = await discoverAllTeams(C, clubName);
+    if (myGen !== gen) return;
 
-  if (!allItems) {
-    try {
-      const xml = await fetchRSS(verUrl(C));
-      if (myGen !== gen) return;
-      allItems = parseRSS(xml);
-      if (!allItems.length) throw new Error('Geen wedstrijden gevonden voor '+C);
-      setCached(cacheK, allItems);
-    } catch(e) {
-      if (myGen !== gen) return;
-      M.innerHTML = mkAssocBanner(C, clubName, false) +
-        '<div class="err"><b>⚠️ Kon data niet laden</b><br><small>'+esc(e.message)+'</small></div>';
-      return;
-    }
+    // Laad alle teams en toon in de UI
+    let html = mkAssocBanner(C, clubName, false) +
+      '<div id="AC"><div style="max-width:1100px;margin:0 auto;padding:0 24px 60px"><div style="display:grid;grid-template-columns:240px 1fr;gap:20px;align-items:start">' +
+      '<div style="display:flex;flex-direction:column;gap:12px">';
+
+    // Teams lijst links
+    teams.forEach(t => {
+      html += '<button class="team-li" data-tid="'+esc(t.id)+'" style="padding:11px 13px;text-align:left;border:1px solid var(--gray-200);border-radius:8px;background:var(--white);cursor:pointer;font-size:.88rem;transition:background .1s;font-weight:500">'+
+        esc(t.name) +
+      '</button>';
+    });
+
+    html += '</div><div id="team-detail" style="background:var(--white);border:1px solid var(--gray-200);border-radius:12px;padding:20px">' +
+      '<div class="nd" style="padding:40px;text-align:center;color:var(--gray-400)">Selecteer een team</div>' +
+      '</div></div></div></div>';
+
+    M.innerHTML = html;
+
+    // Wire team-buttons
+    document.querySelectorAll('.team-li[data-tid]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tid = btn.dataset.tid;
+        const team = teams.find(t => t.id === tid);
+        if (team) loadTeam(team);
+      });
+    });
+
+  } catch(e) {
+    if (myGen !== gen) return;
+    M.innerHTML = mkAssocBanner(C, clubName, false) +
+      '<div class="err"><b>⚠️ Kon teams niet ontdekken</b><br><small>'+esc(e.message)+'</small></div>';
   }
-  if (myGen !== gen) return;
-
-  renderAssocPage(C, clubName, allItems);
 }
 
 function refreshAssoc(code, name) {
@@ -853,7 +966,7 @@ function renderAssocPage(code, clubName, allItems) {
   allItems.forEach(m => {
     [m.thuis, m.uit].forEach(n => { if(n) nameCount[n] = (nameCount[n]||0)+1; });
   });
-  const threshold = Math.max(2, Math.ceil(allItems.length * 0.18));
+  const threshold = Math.max(1, Math.ceil(allItems.length * 0.18));
   const ownNames  = new Set(Object.entries(nameCount).filter(([,cnt])=>cnt>=threshold).map(([n])=>n));
 
   // Groepeer per eigen team
