@@ -32,15 +32,15 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:#fafafa;color:#111;mi
 }
 
 /* ── NAV ── */
-nav{background:var(--white);border-bottom:1px solid var(--gray-200);position:sticky;top:0;z-index:100}
-.nav-inner{max-width:1180px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;gap:16px}
+nav{background:var(--white);border-bottom:1px solid var(--gray-200);position:sticky;top:0;z-index:1000}
+.nav-inner{height:60px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 24px;gap:24px}
 .logo{display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;user-select:none;text-decoration:none}
 .logo-mark{width:32px;height:32px;background:var(--black);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .logo-text{font-size:.95rem;font-weight:700;letter-spacing:-.3px;color:var(--black);line-height:1}
 .logo-text span{color:var(--blue)}
 
 /* Search */
-.nav-search{flex:1;max-width:480px;position:relative}
+.nav-search{max-width:480px;position:relative}
 .search-field{display:flex;align-items:center;background:var(--gray-100);border:1px solid transparent;border-radius:var(--radius);transition:border-color .15s,background .15s;overflow:hidden}
 .search-field:focus-within{background:var(--white);border-color:var(--gray-300);box-shadow:var(--shadow)}
 .search-icon{padding:0 10px 0 14px;color:var(--gray-400);flex-shrink:0;display:flex;align-items:center}
@@ -50,10 +50,23 @@ nav{background:var(--white);border-bottom:1px solid var(--gray-200);position:sti
 .search-field:focus-within .search-clear{display:flex}
 
 /* Suggest dropdown */
-.sugg{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow-md);z-index:200;display:none;overflow:hidden;max-height:380px;overflow-y:auto}
+.sugg {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.1);
+  z-index: 500;
+  display: none;
+  overflow-y: auto;
+  max-height: 380px;
+}
 .sugg.open{display:block}
 .sdiv{padding:7px 14px;font-size:.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.6px;background:var(--gray-50);border-bottom:1px solid var(--gray-100)}
-.si{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--gray-100);transition:background .1s}
+.si{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--gray-100);transition:background .1s;background:var(--white)}
 .si:last-child{border-bottom:none}
 .si:hover{background:var(--gray-50)}
 .si-ico{font-size:15px;flex-shrink:0}
@@ -63,12 +76,12 @@ nav{background:var(--white);border-bottom:1px solid var(--gray-200);position:sti
 .si-tag.saved{background:var(--green-lt);color:var(--green)}
 
 /* Favorites dropdown */
-.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.nav-right{display:flex;align-items:center;gap:8px;justify-content:flex-end}
 .fav-wrap{position:relative}
 .fav-btn{background:none;border:1px solid var(--gray-200);border-radius:var(--radius);color:var(--gray-700);font-family:var(--sans);font-size:.84rem;font-weight:500;padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:border-color .15s,background .15s;white-space:nowrap}
 .fav-btn:hover{border-color:var(--gray-300);background:var(--gray-50)}
 .fav-btn .fav-count{background:var(--gold);color:#fff;border-radius:10px;padding:1px 7px;font-size:.7rem;font-weight:700;font-family:var(--mono);min-width:18px;text-align:center}
-.fav-dd{position:absolute;top:calc(100% + 6px);right:0;width:320px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow-md);z-index:200;display:none;max-height:420px;overflow-y:auto}
+.fav-dd{position:absolute;top:calc(100% + 6px);right:0;width:320px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow-md);z-index:600;display:none;max-height:420px;overflow-y:auto}
 .fav-dd.open{display:block}
 .fav-dd-head{padding:10px 14px;font-size:.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.6px;background:var(--gray-50);border-bottom:1px solid var(--gray-100)}
 .fav-item{padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;border-bottom:1px solid var(--gray-100);transition:background .1s}
@@ -86,23 +99,35 @@ nav{background:var(--white);border-bottom:1px solid var(--gray-200);position:sti
 main{max-width:1180px;margin:0 auto;padding:36px 24px 80px}
 
 /* ── HOME ── */
-.home-hero{text-align:center;padding:48px 0 36px}
+.home-hero{text-align:center;padding:48px 0 36px;position:relative;z-index:100}
 .home-hero h2{font-size:2.1rem;font-weight:700;letter-spacing:-.6px;line-height:1.2;margin-bottom:12px;color:var(--black)}
 .home-hero p{font-size:1rem;color:var(--gray-500);max-width:460px;margin:0 auto 30px;line-height:1.6}
 
-.search-big{max-width:560px;margin:0 auto;display:flex;background:var(--white);border:1px solid var(--gray-200);border-radius:12px;box-shadow:var(--shadow-md);overflow:visible;position:relative}
+/* Grote zoekbalk op homepage */
+.search-big{
+  max-width:560px;
+  margin:0 auto;
+  display:flex;
+  background:var(--white);
+  border:1px solid var(--gray-200);
+  border-radius:12px;
+  box-shadow:var(--shadow-md);
+  overflow:visible;
+  position:relative;
+  isolation:isolate;
+}
 .search-big input{flex:1;border:none;outline:none;padding:14px 18px;font-family:var(--sans);font-size:.95rem;color:var(--black);background:transparent;min-width:0;border-radius:12px 0 0 12px}
 .search-big input::placeholder{color:var(--gray-400)}
 .search-big button{background:var(--black);border:none;color:var(--white);font-family:var(--sans);font-size:.88rem;font-weight:600;padding:0 22px;cursor:pointer;flex-shrink:0;transition:opacity .15s;border-radius:0 12px 12px 0}
 .search-big button:hover{opacity:.85}
 .search-big .sugg{top:calc(100% + 8px)}
 
-/* Saved verenigingen */
-.saved-section{margin-top:42px;max-width:760px;margin-left:auto;margin-right:auto}
+/* Saved verenigingen / Favorites */
+.saved-section{margin-top:42px;max-width:760px;margin-left:auto;margin-right:auto;isolation:isolate}
 .saved-label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--gray-400);margin-bottom:14px;display:flex;align-items:center;gap:10px}
 .saved-label::after{content:'';flex:1;height:1px;background:var(--gray-200)}
 .assoc-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
-.assoc-tile{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:border-color .15s,box-shadow .15s;display:flex;align-items:center;gap:12px;user-select:none;position:relative}
+.assoc-tile{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:border-color .15s,box-shadow .15s;display:flex;align-items:center;gap:12px;user-select:none;position:relative;isolation:isolate}
 .assoc-tile:hover{border-color:var(--gray-300);box-shadow:var(--shadow)}
 .assoc-tile-ico{width:36px;height:36px;border-radius:8px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 .assoc-tile-info{flex:1;min-width:0}
@@ -110,6 +135,14 @@ main{max-width:1180px;margin:0 auto;padding:36px 24px 80px}
 .assoc-tile-meta{font-size:.72rem;color:var(--gray-400);font-family:var(--mono);margin-top:2px}
 .assoc-tile-rm{background:none;border:none;color:var(--gray-300);font-size:1rem;cursor:pointer;padding:4px 6px;line-height:1;flex-shrink:0;transition:color .15s}
 .assoc-tile-rm:hover{color:var(--red)}
+
+/* Compare additions */
+.cmp-cb { width: 18px; height: 18px; cursor: pointer; accent-color: var(--black); }
+.compare-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--gray-200); }
+.compare-table th, .compare-table td { padding: 12px 16px; text-align: center; border-bottom: 1px solid var(--gray-100); font-size: .88rem; }
+.compare-table th { background: var(--gray-50); font-weight: 600; font-size: .82rem; color: var(--gray-700); text-transform: uppercase; letter-spacing: .5px; }
+.compare-table td:first-child, .compare-table th:first-child { text-align: left; font-weight: 600; color: var(--black); }
+.compare-banner { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 
 .no-saved{background:var(--white);border:1px dashed var(--gray-300);border-radius:12px;padding:32px;text-align:center}
 .no-saved p{font-size:.88rem;color:var(--gray-500);line-height:1.5;max-width:340px;margin:0 auto}
@@ -149,20 +182,6 @@ main{max-width:1180px;margin:0 auto;padding:36px 24px 80px}
 .fav-star:hover{color:var(--gold);transform:scale(1.15)}
 .fav-star.on{color:var(--gold)}
 
-/* Recent matches (middle col) */
-.match-li{padding:10px 14px;border-bottom:1px solid var(--gray-100);font-size:.82rem}
-.match-li:last-child{border-bottom:none}
-.match-li-top{display:flex;align-items:center;gap:8px;margin-bottom:3px}
-.match-date{font-size:.7rem;color:var(--gray-400);font-family:var(--mono);flex-shrink:0}
-.match-team{font-size:.83rem;font-weight:500;color:var(--black);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.match-vs{display:flex;align-items:center;gap:8px}
-.match-vs .vs-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.84rem}
-.match-vs .vs-name.own{font-weight:600}
-.match-score{font-family:var(--mono);font-weight:700;font-size:.85rem;flex-shrink:0;padding:1px 7px;border-radius:5px}
-.match-score.W{background:var(--green-lt);color:var(--green)}
-.match-score.L{background:var(--red-lt);color:var(--red)}
-.match-score.P{background:var(--gray-100);color:var(--gray-500)}
-
 /* Stats (right col) */
 .stat-blk{padding:14px 16px;border-bottom:1px solid var(--gray-100)}
 .stat-blk:last-child{border-bottom:none}
@@ -178,7 +197,7 @@ main{max-width:1180px;margin:0 auto;padding:36px 24px 80px}
 
 .no-data{padding:24px;text-align:center;color:var(--gray-400);font-size:.84rem;font-family:var(--mono)}
 
-/* ── TEAM PAGE (existing rendering) ── */
+/* ── TEAM PAGE & TABLES ── */
 .team-banner{background:var(--white);border:1px solid var(--gray-200);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:20px}
 .banner-ico{width:40px;height:40px;border-radius:10px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .banner-info{flex:1;min-width:0}
@@ -262,11 +281,45 @@ main{max-width:1180px;margin:0 auto;padding:36px 24px 80px}
   .chart-grid{grid-template-columns:1fr}
   .tcard th:nth-child(5),.tcard td:nth-child(5){display:none}
 }
+
+/* Layout voor de homepage met zijbalk */
+.home-layout {
+  display: flex;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  align-items: flex-start;
+}
+
+/* De zijbalk voor favorieten */
+.home-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 20px;
+}
+
+/* De rechterkant (Zoekgedeelte) */
+.home-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Zorgt dat de tekst en zoekbalk gecentreerd blijven */
+  text-align: center;
+  padding-top: 60px;
+}
+
+/* Responsiviteit: op mobiel alles onder elkaar */
+@media (max-width: 850px) {
+  .home-layout { flex-direction: column; align-items: stretch; }
+  .home-sidebar { width: 100%; position: static; order: 2; }
+  .home-main { order: 1; padding-top: 20px; }
+}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <div class="nav-inner">
     <a class="logo" data-action="home">
@@ -298,7 +351,6 @@ main{max-width:1180px;margin:0 auto;padding:36px 24px 80px}
   </div>
 </nav>
 
-<!-- MAIN -->
 <main id="M"></main>
 
 <script>
@@ -310,7 +362,48 @@ const EXPORT    = NEVOBO + '/export';
 const STORE_ASSOCS = 'vs_assocs_saved_v2';
 const STORE_FAVS   = 'vs_fav_teams_v1';
 const CPFX      = 'vs_c4_';
+const SEASON_PFX = 'vs_season_';   // prefix voor seizoensarchief per team
 const TTL       = 3600000; // 1 uur
+const TTL_SEASON = 365 * 24 * 3600000; // 1 jaar voor afgesloten seizoenen
+
+// Detecteer huidig volleybalseizoen (start augustus)
+function currentSeason() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth(); // 0=jan
+  return m >= 7 ? `${y}-${y+1}` : `${y-1}-${y}`;
+}
+
+// Sla seizoen-snapshot op in localStorage (wordt bewaard ook na seizoenswissel)
+function saveSeasonSnapshot(teamId, season, matches) {
+  const key = SEASON_PFX + teamId + '__' + season;
+  try {
+    localStorage.setItem(key, JSON.stringify({ ts: Date.now(), season, matches }));
+  } catch(e) {}
+}
+
+function getSeasonSnapshot(teamId, season) {
+  const key = SEASON_PFX + teamId + '__' + season;
+  try {
+    const r = localStorage.getItem(key);
+    return r ? JSON.parse(r) : null;
+  } catch { return null; }
+}
+
+function listSeasonSnapshots(teamId) {
+  const prefix = SEASON_PFX + teamId + '__';
+  const results = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(prefix)) {
+        const data = JSON.parse(localStorage.getItem(k));
+        if (data) results.push(data);
+      }
+    }
+  } catch {}
+  return results.sort((a, b) => b.season.localeCompare(a.season));
+}
 
 // Proxy-keten: probeer op volgorde, stop bij eerste succes
 const PROXY_CHAIN = [
@@ -319,74 +412,47 @@ const PROXY_CHAIN = [
   { url: u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u), raw: true },
 ];
 
-// Generatie-counter (voorkomt race-conditions tussen async fetches)
+// Generatie-counter
 let gen = 0;
-
-// Volledige clubsdatabase (geladen uit nevobo_clubs.json) — code → {code, name}
 const CLUBS = {};
 let clubsLoaded = false;
-
-// Dynamisch register van team-objecten (id → object) voor snelle navigatie
 const TR = {};
-
-// Chart-instanties
 let charts = {};
+
+// In-memory page cache: slaat de volledige gerenderde staat op zodat
+// terugnavigatie binnen een sessie instant gaat (geen netwerkverzoeken).
+// Structuur: { assoc: { [code]: { teams, allItems, html } }, team: { [id]: { matches, html } } }
+const PAGE_CACHE = { assoc: {}, team: {} };
 
 // ═══════════════════════════════════════════
 //  OPSLAG
 // ═══════════════════════════════════════════
-function getSavedAssocs() {
-  try { return JSON.parse(localStorage.getItem(STORE_ASSOCS)) || []; } catch { return []; }
-}
-function saveSavedAssocs(arr) {
-  try { localStorage.setItem(STORE_ASSOCS, JSON.stringify(arr)); } catch {}
-}
-function isAssocSaved(code) {
-  return getSavedAssocs().some(a => a.code === code.toUpperCase());
-}
+function getSavedAssocs() { try { return JSON.parse(localStorage.getItem(STORE_ASSOCS)) || []; } catch { return []; } }
+function saveSavedAssocs(arr) { try { localStorage.setItem(STORE_ASSOCS, JSON.stringify(arr)); } catch {} }
+function isAssocSaved(code) { return getSavedAssocs().some(a => a.code === code.toUpperCase()); }
 function toggleSavedAssoc(code, name) {
   const C = code.toUpperCase();
   let saved = getSavedAssocs();
-  if (saved.some(a => a.code === C)) {
-    saved = saved.filter(a => a.code !== C);
-  } else {
-    saved.push({ code: C, name });
-  }
+  if (saved.some(a => a.code === C)) saved = saved.filter(a => a.code !== C);
+  else saved.push({ code: C, name });
   saveSavedAssocs(saved);
   return saved.some(a => a.code === C);
 }
-function removeSavedAssoc(code) {
-  const C = code.toUpperCase();
-  saveSavedAssocs(getSavedAssocs().filter(a => a.code !== C));
-}
+function removeSavedAssoc(code) { saveSavedAssocs(getSavedAssocs().filter(a => a.code !== code.toUpperCase())); }
 
-function getFavTeams() {
-  try { return JSON.parse(localStorage.getItem(STORE_FAVS)) || []; } catch { return []; }
-}
-function saveFavTeams(arr) {
-  try { localStorage.setItem(STORE_FAVS, JSON.stringify(arr)); } catch {}
-}
-function isFavTeam(id) {
-  return getFavTeams().some(t => t.id === id);
-}
+function getFavTeams() { try { return JSON.parse(localStorage.getItem(STORE_FAVS)) || []; } catch { return []; } }
+function saveFavTeams(arr) { try { localStorage.setItem(STORE_FAVS, JSON.stringify(arr)); } catch {} }
+function isFavTeam(id) { return getFavTeams().some(t => t.id === id); }
 function toggleFavTeam(team) {
   let favs = getFavTeams();
-  if (favs.some(t => t.id === team.id)) {
-    favs = favs.filter(t => t.id !== team.id);
-  } else {
-    favs.push(team);
-  }
+  if (favs.some(t => t.id === team.id)) favs = favs.filter(t => t.id !== team.id);
+  else { favs.push(team); TR[team.id] = team; }
   saveFavTeams(favs);
-  TR[team.id] = team;
   updateFavCount();
   return favs.some(t => t.id === team.id);
 }
-function removeFavTeam(id) {
-  saveFavTeams(getFavTeams().filter(t => t.id !== id));
-  updateFavCount();
-}
+function removeFavTeam(id) { saveFavTeams(getFavTeams().filter(t => t.id !== id)); updateFavCount(); }
 
-// Cache
 function getCached(k) {
   try {
     const r = localStorage.getItem(CPFX+k);
@@ -396,16 +462,13 @@ function getCached(k) {
     return d;
   } catch { return null; }
 }
-function setCached(k,d) {
-  try { localStorage.setItem(CPFX+k, JSON.stringify({ts:Date.now(),d})); } catch {}
-}
+function setCached(k,d) { try { localStorage.setItem(CPFX+k, JSON.stringify({ts:Date.now(),d})); } catch {} }
 function delCached(k) { try { localStorage.removeItem(CPFX+k); } catch {} }
 
 // ═══════════════════════════════════════════
 //  CLUBS DATABASE LOADER
 // ═══════════════════════════════════════════
 async function loadClubsDB() {
-  // Probeer eerst naast HTML, dan in Scraper-folder
   const paths = ['nevobo_clubs.json', 'Scraper/nevobo_clubs.json'];
   for (const p of paths) {
     try {
@@ -413,18 +476,12 @@ async function loadClubsDB() {
       if (!r.ok) continue;
       const data = await r.json();
       if (Array.isArray(data)) {
-        data.forEach(c => {
-          if (c.code && c.name) CLUBS[c.code.toUpperCase()] = { code: c.code.toUpperCase(), name: c.name };
-        });
+        data.forEach(c => { if (c.code && c.name) CLUBS[c.code.toUpperCase()] = { code: c.code.toUpperCase(), name: c.name }; });
         clubsLoaded = true;
-        console.log('[VolleyStats] '+Object.keys(CLUBS).length+' verenigingen geladen uit '+p);
         return;
       }
-    } catch(e) {
-      console.warn('[VolleyStats] Kon '+p+' niet laden:', e.message);
-    }
+    } catch(e) {}
   }
-  console.error('[VolleyStats] Verenigingsdatabase kon niet geladen worden. Plaats nevobo_clubs.json naast index.html.');
 }
 
 // ═══════════════════════════════════════════
@@ -433,14 +490,58 @@ async function loadClubsDB() {
 function teamUrl(code,type,nr)      { return EXPORT+'/team/'+code.toUpperCase()+'/'+type+'/'+nr+'/resultaten.rss'; }
 function programmaUrl(code,type,nr) { return EXPORT+'/team/'+code.toUpperCase()+'/'+type+'/'+nr+'/programma.rss'; }
 function verUrl(code)               { return EXPORT+'/vereniging/'+code.toUpperCase()+'/resultaten.rss'; }
+function standUrl(regio,poule)      { return EXPORT+'/poule/'+regio+'/'+poule+'/stand.rss'; }
 function cacheKey(code,type,nr)     { return code.toUpperCase()+'__'+type+'__'+nr; }
 function teamId(code,type,nr)       { return (code+'_'+type+'_'+nr).toLowerCase().replace(/[^a-z0-9_]/g,'_'); }
 
+// Extraheer regio + poule-code uit een Nevobo permalink-URL
+// bv. https://api.nevobo.nl/permalink/regio-west/jaarcompetitie.../poule/regio-west-d2b-9
+// → { regio: 'regio-west', poule: 'D2B' }
+function pouleFromLink(link) {
+  if (!link) return null;
+  const m = link.match(/\/poule\/([a-z-]+)-([a-z0-9]+)-\d+\/?$/i);
+  if (!m) return null;
+  const regio = m[1].replace(/-([a-z0-9]+)$/, '') + '-' + m[1].replace(/.*-([a-z0-9]+)$/, '$1'); // haal regio uit prefix
+  // eenvoudiger: alles voor de laatste segment-groep is regio
+  const parts = link.match(/\/permalink\/([^/]+)\/[^/]+\/poule\/([^/]+)/);
+  if (!parts) return null;
+  const fullPoule = parts[2]; // bv. "regio-west-d2b-9"
+  const regioPart = parts[1]; // bv. "regio-west"
+  // poulecode is het deel na de regio en voor het laatste getal
+  const pouleCode = fullPoule.replace(regioPart + '-', '').replace(/-\d+$/, '').toUpperCase();
+  return { regio: regioPart, poule: pouleCode };
+}
+
+// Parse stand-RSS CDATA: "1. Teamnaam DS 1, wedstr: 14, punten: 38"
+function parseStand(xml) {
+  const doc = new DOMParser().parseFromString(xml, 'text/xml');
+  if (doc.querySelector('parsererror')) return [];
+  const rows = [];
+  doc.querySelectorAll('item').forEach(item => {
+    const raw = (item.querySelector('description')?.textContent || '').replace(/<[^>]+>/g, ' ');
+    // Elke regel: "1. Set-Up DS 2, wedstr: 14, punten: 38"
+    const lines = raw.split(/\n|\r|(?=\d+\.\s)/g).filter(l => /^\d+\./.test(l.trim()));
+    lines.forEach(line => {
+      const m = line.trim().match(/^(\d+)\.\s+(.+?),\s*wedstr:\s*(\d+),\s*punten:\s*(\d+)/);
+      if (m) rows.push({ pos: +m[1], name: m[2].trim(), wedstr: +m[3], punten: +m[4] });
+    });
+  });
+  // Alternatief: CDATA als één blok in description
+  if (!rows.length) {
+    const allDesc = [...doc.querySelectorAll('item description')].map(d => d.textContent).join('\n');
+    const re = /(\d+)\.\s+(.+?),\s*wedstr:\s*(\d+),\s*punten:\s*(\d+)/g;
+    let m;
+    while ((m = re.exec(allDesc)) !== null) {
+      rows.push({ pos: +m[1], name: m[2].trim(), wedstr: +m[3], punten: +m[4] });
+    }
+  }
+  return rows.sort((a,b) => a.pos - b.pos);
+}
+
 // ═══════════════════════════════════════════
-//  FETCH RSS — proxy-fallback keten
+//  FETCH & PARSE RSS
 // ═══════════════════════════════════════════
 async function fetchRSS(url) {
-  let lastErr = null;
   for (const proxy of PROXY_CHAIN) {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 10000);
@@ -457,18 +558,11 @@ async function fetchRSS(url) {
         if (!j.contents) throw new Error('Lege proxy response');
         return j.contents;
       }
-    } catch(e) {
-      clearTimeout(t);
-      lastErr = e;
-      console.warn('[VolleyStats] Proxy mislukt:', e.message);
-    }
+    } catch(e) { clearTimeout(t); }
   }
-  throw new Error('Alle proxies mislukten: '+(lastErr?.message||'onbekend'));
+  throw new Error('Kon RSS niet inladen.');
 }
 
-// ═══════════════════════════════════════════
-//  PARSE RSS
-// ═══════════════════════════════════════════
 function parseRSS(xml) {
   const doc = new DOMParser().parseFromString(xml,'text/xml');
   if (doc.querySelector('parsererror')) throw new Error('Ongeldige RSS');
@@ -482,7 +576,7 @@ function parseItem(item) {
   const link     = (item.querySelector('link')?.textContent||'').trim();
   const category = (item.querySelector('category')?.textContent||'').trim().toLowerCase();
 
-  let ts=null, dateStr='—', timeStr='';
+  let ts=null, dateStr='—', timeStr='', season=null;
   if (pubDate) {
     const d = new Date(pubDate);
     if (!isNaN(d)) {
@@ -490,6 +584,9 @@ function parseItem(item) {
       dateStr = d.toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
       const h = d.getHours(), m2 = d.getMinutes();
       if (h > 0 || m2 > 0) timeStr = String(h).padStart(2,'0')+':'+String(m2).padStart(2,'0');
+      // Volleybalseizoen: aug–jul → bijv. wedstrijd in sep 2025 = seizoen 2025-2026
+      const y = d.getFullYear(), mo = d.getMonth();
+      season = mo >= 7 ? `${y}-${y+1}` : `${y-1}-${y}`;
     }
   }
 
@@ -518,14 +615,13 @@ function parseItem(item) {
   }
 
   const played_cat = category === 'gespeeld' || (scoreStr !== '');
-
   let result=null, points=null;
   if (scoreStr) {
     result = sw>sl ? 'W' : 'L';
     points = result==='W' ? (sl<=1?3:2) : (sw===2?1:0);
   }
 
-  return {ts,dateStr,timeStr,thuis,uit,scoreStr,sw,sl,sets,result,points,link,played_cat};
+  return {ts,dateStr,timeStr,season,thuis,uit,scoreStr,sw,sl,sets,result,points,link,played_cat};
 }
 
 function enrichHA(matches,teamName) {
@@ -534,80 +630,41 @@ function enrichHA(matches,teamName) {
     const tl = m.thuis.toLowerCase();
     const isHome = words.some(w=>tl.includes(w));
     const opponent = isHome ? m.uit : m.thuis;
-
     let result = null, points = null;
     if (m.scoreStr) {
       const teamWon = isHome ? m.sw > m.sl : m.sl > m.sw;
       const teamSets = isHome ? m.sw : m.sl;
       const oppSets  = isHome ? m.sl : m.sw;
       result = teamWon ? 'W' : 'L';
-      if (teamWon) {
-        points = oppSets <= 1 ? 3 : 2;
-      } else {
-        points = teamSets === 2 ? 1 : 0;
-      }
+      if (teamWon) points = oppSets <= 1 ? 3 : 2;
+      else points = teamSets === 2 ? 1 : 0;
     }
-
     return{...m, isHome, opponent, result, points};
   });
 }
 
-// ═══════════════════════════════════════════
-//  TYPE HELPERS
-// ═══════════════════════════════════════════
 function rawTypeToApiType(r) {
-  const m={
-    'DS':'dames','HS':'heren',
-    'DA':'meisjes-a','MA':'meiden-a',
-    'DB':'meisjes-b','MB':'meiden-b',
-    'DC':'meisjes-c','MC':'meiden-c',
-    'DD':'meisjes-d','MD':'meiden-d',
-    'HA':'jongens-a','JA':'jongens-a',
-    'HB':'jongens-b','JB':'jongens-b',
-    'HC':'jongens-c','JC':'jongens-c',
-    'HD':'jongens-d','JD':'jongens-d',
-    'GEM':'gemengd','XR':'mix-recreatief',
-    'N1':'cmv-niveau-1','N2':'cmv-niveau-2','N3':'cmv-niveau-3','N4':'cmv-niveau-4',
-    'L1':'volley-stars-level-1','L2':'volley-stars-level-2','L3':'volley-stars-level-3',
-    'L4':'volley-stars-level-4','L5':'volley-stars-level-5',
-  };
+  const m={'DS':'dames','HS':'heren','DA':'meisjes-a','MA':'meiden-a','DB':'meisjes-b','MB':'meiden-b','DC':'meisjes-c','MC':'meiden-c','DD':'meisjes-d','MD':'meiden-d','HA':'jongens-a','JA':'jongens-a','HB':'jongens-b','JB':'jongens-b','HC':'jongens-c','JC':'jongens-c','HD':'jongens-d','JD':'jongens-d','GEM':'gemengd','XR':'mix-recreatief','N1':'cmv-niveau-1','N2':'cmv-niveau-2','N3':'cmv-niveau-3','N4':'cmv-niveau-4','L1':'volley-stars-level-1','L2':'volley-stars-level-2','L3':'volley-stars-level-3','L4':'volley-stars-level-4','L5':'volley-stars-level-5'};
   return m[r.toUpperCase()] || r.toLowerCase();
 }
 function typeLabel(type) {
-  const m={
-    'dames':'DS','heren':'HS',
-    'meisjes-a':'DA','meiden-a':'MA','meisjes-b':'DB','meiden-b':'MB',
-    'meisjes-c':'DC','meiden-c':'MC','meisjes-d':'DD','meiden-d':'MD',
-    'jongens-a':'JA','jongens-b':'JB','jongens-c':'JC','jongens-d':'JD',
-    'gemengd':'GEM','mix-recreatief':'XR',
-    'cmv-niveau-1':'N1','cmv-niveau-2':'N2','cmv-niveau-3':'N3','cmv-niveau-4':'N4',
-    'volley-stars-level-1':'L1','volley-stars-level-2':'L2','volley-stars-level-3':'L3',
-    'volley-stars-level-4':'L4','volley-stars-level-5':'L5',
-  };
+  const m={'dames':'DS','heren':'HS','meisjes-a':'DA','meiden-a':'MA','meisjes-b':'DB','meiden-b':'MB','meisjes-c':'DC','meiden-c':'MC','meisjes-d':'DD','meiden-d':'MD','jongens-a':'JA','jongens-b':'JB','jongens-c':'JC','jongens-d':'JD','gemengd':'GEM','mix-recreatief':'XR','cmv-niveau-1':'N1','cmv-niveau-2':'N2','cmv-niveau-3':'N3','cmv-niveau-4':'N4','volley-stars-level-1':'L1','volley-stars-level-2':'L2','volley-stars-level-3':'L3','volley-stars-level-4':'L4','volley-stars-level-5':'L5'};
   return m[type] || type;
 }
-function clubNameFromTeam(name) {
-  return name.replace(/\s+(DS|HS|DA|DB|DC|DD|HA|HB|HC|HD|JA|JB|JC|JD|MA|MB|MC|MD|GEM|XR|N\d|L\d)\s*\d*\s*$/i,'').trim() || name;
-}
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
+function clubNameFromTeam(name) { return name.replace(/\s+(DS|HS|DA|DB|DC|DD|HA|HB|HC|HD|JA|JB|JC|JD|MA|MB|MC|MD|GEM|XR|N\d|L\d)\s*\d*\s*$/i,'').trim() || name; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 // ═══════════════════════════════════════════
-//  ZOEKEN — alleen verenigingen uit clubsDB
+//  ZOEKEN
 // ═══════════════════════════════════════════
 function searchClubs(q, limit=12) {
   const ql = q.toLowerCase().trim();
   if (!ql) return [];
   const all = Object.values(CLUBS);
-  // Exact code match
   const exact = all.filter(c => c.code.toLowerCase() === ql);
   if (exact.length) return exact;
-  // Naam start
   const starts = all.filter(c => c.name.toLowerCase().startsWith(ql));
-  // Naam bevat
   const contains = all.filter(c => c.name.toLowerCase().includes(ql) && !c.name.toLowerCase().startsWith(ql));
-  // Code bevat
   const codeMatch = all.filter(c => c.code.toLowerCase().includes(ql) && !c.name.toLowerCase().includes(ql));
   return [...starts, ...contains, ...codeMatch].slice(0, limit);
 }
@@ -616,16 +673,12 @@ const SI = document.getElementById('SI');
 const SB = document.getElementById('SB');
 let sTimer = null;
 
-SI.addEventListener('input', () => { clearTimeout(sTimer); sTimer = setTimeout(() => updateSugg(SI.value.trim()), 150); });
+SI.addEventListener('input', () => { clearTimeout(sTimer); sTimer = setTimeout(() => updateSugg(SI.value.trim(), SB), 150); });
 SI.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const first = SB.querySelector('.si[data-club]');
-    if (first) { first.click(); }
-    else doSearch();
-  }
+  if (e.key === 'Enter') { const first = SB.querySelector('.si[data-club]'); if (first) first.click(); else doSearch(SI, SB); }
   if (e.key === 'Escape') { SB.classList.remove('open'); SI.blur(); }
 });
-SI.addEventListener('focus', () => { if (SI.value.trim().length >= 1) updateSugg(SI.value.trim()); });
+SI.addEventListener('focus', () => { if (SI.value.trim().length >= 1) updateSugg(SI.value.trim(), SB); });
 
 document.addEventListener('click', e => {
   if (!e.target.closest('.nav-search') && !e.target.closest('.search-big')) SB.classList.remove('open');
@@ -634,95 +687,57 @@ document.addEventListener('click', e => {
 
 function clearSearch() { SI.value=''; SB.classList.remove('open'); SI.focus(); }
 
-function updateSugg(q) {
-  if (!clubsLoaded) {
-    SB.innerHTML = '<div class="nd" style="padding:14px">⏳ Verenigingen laden…</div>';
-    SB.classList.add('open');
-    return;
-  }
-  if (q.length < 1) { SB.classList.remove('open'); return; }
+function updateSugg(q, box) {
+  if (!clubsLoaded) { box.innerHTML = '<div class="nd" style="padding:14px">⏳ Laden…</div>'; box.classList.add('open'); return; }
+  if (q.length < 1) { box.classList.remove('open'); return; }
   const hits = searchClubs(q, 12);
-  if (!hits.length) {
-    SB.innerHTML = '<div class="nd" style="padding:14px">Geen verenigingen gevonden voor "'+esc(q)+'"</div>';
-    SB.classList.add('open');
-    return;
-  }
-  SB.innerHTML = '<div class="sdiv">Verenigingen ('+hits.length+')</div>' + hits.map(c => {
-    const saved = isAssocSaved(c.code);
-    return '<div class="si" data-club="'+esc(c.code)+'" data-name="'+esc(c.name)+'">'+
-      '<div class="si-ico">🏟️</div>'+
-      '<div style="flex:1;min-width:0"><div class="si-name">'+esc(c.name)+'</div>'+
-      '<div class="si-meta">'+esc(c.code)+'</div></div>'+
-      '<span class="si-tag'+(saved?' saved':'')+'">'+(saved?'★ opgeslagen':c.code)+'</span></div>';
+  if (!hits.length) { box.innerHTML = '<div class="nd" style="padding:14px">Geen resultaten</div>'; box.classList.add('open'); return; }
+  const showTag = box === SB;
+  box.innerHTML = '<div class="sdiv">Verenigingen ('+hits.length+')</div>' + hits.map(c => {
+    const saved = showTag && isAssocSaved(c.code);
+    return '<div class="si" data-club="'+esc(c.code)+'" data-name="'+esc(c.name)+'"><div class="si-ico">🏟️</div><div style="flex:1;min-width:0"><div class="si-name">'+esc(c.name)+'</div><div class="si-meta">'+esc(c.code)+'</div></div>'+(showTag?'<span class="si-tag'+(saved?' saved':'')+'">'+(saved?'★':c.code)+'</span>':'')+'</div>';
   }).join('');
-  SB.classList.add('open');
+  box.classList.add('open');
 }
 
-function doSearch() {
-  const q = SI.value.trim();
+function doSearch(inputEl, box) {
+  const q = inputEl.value.trim();
   if (!q) return;
   const hits = searchClubs(q, 1);
-  if (hits.length) {
-    SB.classList.remove('open');
-    showAssocPage(hits[0].code, hits[0].name);
-  } else {
-    SB.innerHTML = '<div class="nd" style="padding:14px">Geen vereniging gevonden voor "'+esc(q)+'"</div>';
-    SB.classList.add('open');
-  }
+  if (hits.length) { box.classList.remove('open'); showAssocPage(hits[0].code, hits[0].name); }
 }
 
 // ═══════════════════════════════════════════
-//  HOME
+//  HOME / FAVORITES
 // ═══════════════════════════════════════════
 function renderHome() {
-  gen++;
-  destroyCharts();
-  SI.value = '';
-  SB.classList.remove('open');
+  gen++; destroyCharts();
+  SI.value = ''; SB.classList.remove('open');
   document.getElementById('favDD').classList.remove('open');
-
   const M = document.getElementById('M');
+  
   const saved = getSavedAssocs();
-
   let body = '';
 
-  if (!saved.length) {
-    body =
-      '<div class="home-hero fade-up">'+
-        '<h2>Welkom bij<br>VolleyStatsNL</h2>'+
-        '<p>Zoek je volleybalvereniging op om uitslagen, statistieken en analyses van alle teams te bekijken.</p>'+
-        '<div class="search-big">'+
-          '<input type="text" id="SIH" placeholder="Zoek vereniging…" autocomplete="off"/>'+
-          '<button onclick="doHomeSearch()">Zoeken</button>'+
-          '<div class="sugg" id="SBH"></div>'+
-        '</div>'+
-      '</div>';
-  } else {
-    const tiles = saved.map(a =>
-      '<div class="assoc-tile" data-club="'+esc(a.code)+'" data-name="'+esc(a.name)+'">'+
-        '<div class="assoc-tile-ico">🏟️</div>'+
-        '<div class="assoc-tile-info">'+
-          '<div class="assoc-tile-name">'+esc(a.name)+'</div>'+
-          '<div class="assoc-tile-meta">'+esc(a.code)+'</div>'+
-        '</div>'+
-        '<button class="assoc-tile-rm" data-rmassoc="'+esc(a.code)+'" title="Verwijderen">✕</button>'+
-      '</div>'
-    ).join('');
+  body += '<div class="home-hero fade-up" style="padding:36px 0 28px">'+
+    '<h2>Vind je vereniging</h2>'+
+    '<p>Zoek snel een vereniging om alle teams en statistieken te bekijken.</p>'+
+    '<div class="search-big"><input type="text" id="SIH" placeholder="Zoek vereniging…" autocomplete="off"/><button onclick="doHomeSearch()">Zoeken</button><div class="sugg" id="SBH"></div></div>'+
+  '</div>';
 
-    body =
-      '<div class="home-hero fade-up" style="padding:36px 0 28px">'+
-        '<h2>Vind je vereniging</h2>'+
-        '<p>Zoek snel een vereniging om alle teams en statistieken te bekijken.</p>'+
-        '<div class="search-big">'+
-          '<input type="text" id="SIH" placeholder="Zoek vereniging…" autocomplete="off"/>'+
-          '<button onclick="doHomeSearch()">Zoeken</button>'+
-          '<div class="sugg" id="SBH"></div>'+
-        '</div>'+
-      '</div>'+
-      '<div class="saved-section fade-up">'+
-        '<div class="saved-label">Opgeslagen verenigingen ('+saved.length+')</div>'+
-        '<div class="assoc-list">'+tiles+'</div>'+
-      '</div>';
+  if (saved.length) {
+    const tiles = saved.map(a => '<div class="assoc-tile" data-club="'+esc(a.code)+'" data-name="'+esc(a.name)+'"><div class="assoc-tile-ico">🏟️</div><div class="assoc-tile-info"><div class="assoc-tile-name">'+esc(a.name)+'</div><div class="assoc-tile-meta">'+esc(a.code)+'</div></div><button class="assoc-tile-rm" data-rmassoc="'+esc(a.code)+'">✕</button></div>').join('');
+    body += '<div class="saved-section fade-up"><div class="saved-label">Opgeslagen verenigingen ('+saved.length+')</div><div class="assoc-list">'+tiles+'</div></div>';
+  }
+
+  const favs = getFavTeams();
+  if (favs.length) {
+    const favTiles = favs.map(f => '<label class="assoc-tile" style="cursor:default"><input type="checkbox" class="cmp-cb" value="'+esc(f.id)+'"><div class="assoc-tile-ico" style="color:var(--gold);font-size:1.1rem">★</div><div class="assoc-tile-info" style="cursor:pointer" data-tid-go="'+esc(f.id)+'"><div class="assoc-tile-name">'+esc(f.name)+'</div><div class="assoc-tile-meta">'+esc(typeLabel(f.type))+'</div></div></label>').join('');
+    body += '<div class="saved-section fade-up" style="margin-top:36px"><div class="saved-label" style="display:flex;justify-content:space-between;align-items:center;"><span>Favoriete Teams ('+favs.length+')</span><button class="btn-save" onclick="compareSelected()" style="font-size:.75rem;padding:5px 12px">Vergelijk Selectie</button></div><div class="assoc-list">'+favTiles+'</div></div>';
+  }
+
+  if (!saved.length && !favs.length) {
+     body = '<div class="home-hero fade-up"><h2>Welkom bij<br>VolleyStatsNL</h2><p>Zoek je volleybalvereniging op om uitslagen, statistieken en analyses te bekijken.</p><div class="search-big"><input type="text" id="SIH" placeholder="Zoek vereniging…" autocomplete="off"/><button onclick="doHomeSearch()">Zoeken</button><div class="sugg" id="SBH"></div></div></div>';
   }
 
   M.innerHTML = body;
@@ -734,102 +749,110 @@ function wireHomeSearch() {
   const SBH = document.getElementById('SBH');
   if (!SIH || !SBH) return;
   let timer = null;
-  SIH.addEventListener('input', () => {
-    clearTimeout(timer);
-    timer = setTimeout(() => updateHomeSugg(SIH.value.trim(), SBH), 150);
-  });
+  SIH.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => updateSugg(SIH.value.trim(), SBH), 150); });
   SIH.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      const first = SBH.querySelector('.si[data-club]');
-      if (first) first.click();
-      else doHomeSearch();
-    }
+    if (e.key === 'Enter') { const first = SBH.querySelector('.si[data-club]'); if (first) first.click(); else doSearch(SIH, SBH); }
     if (e.key === 'Escape') { SBH.classList.remove('open'); SIH.blur(); }
   });
   setTimeout(() => SIH.focus(), 60);
 }
 
-function updateHomeSugg(q, box) {
-  if (!clubsLoaded) {
-    box.innerHTML = '<div class="nd" style="padding:14px">⏳ Verenigingen laden…</div>';
-    box.classList.add('open');
-    return;
-  }
-  if (q.length < 1) { box.classList.remove('open'); return; }
-  const hits = searchClubs(q, 12);
-  if (!hits.length) {
-    box.innerHTML = '<div class="nd" style="padding:14px">Geen verenigingen gevonden voor "'+esc(q)+'"</div>';
-    box.classList.add('open');
-    return;
-  }
-  box.innerHTML = '<div class="sdiv">Verenigingen ('+hits.length+')</div>' + hits.map(c => {
-    const saved = isAssocSaved(c.code);
-    return '<div class="si" data-club="'+esc(c.code)+'" data-name="'+esc(c.name)+'">'+
-      '<div class="si-ico">🏟️</div>'+
-      '<div style="flex:1;min-width:0"><div class="si-name">'+esc(c.name)+'</div>'+
-      '<div class="si-meta">'+esc(c.code)+'</div></div>'+
-      '<span class="si-tag'+(saved?' saved':'')+'">'+(saved?'★ opgeslagen':c.code)+'</span></div>';
-  }).join('');
-  box.classList.add('open');
-}
+function updateHomeSugg(q, box) { updateSugg(q, box); }
 
 function doHomeSearch() {
   const SIH = document.getElementById('SIH');
   if (!SIH) return;
-  const q = SIH.value.trim();
-  if (!q) return;
-  const hits = searchClubs(q, 1);
-  if (hits.length) showAssocPage(hits[0].code, hits[0].name);
+  doSearch(SIH, document.getElementById('SBH'));
 }
 
 // ═══════════════════════════════════════════
-//  HELPER-FUNCTIES
+//  COMPARE SELECTED TEAMS
 // ═══════════════════════════════════════════
-function rawTypeToApiType(r) {
-  const m={
-    'DS':'dames','HS':'heren',
-    'DA':'meisjes-a','MA':'meiden-a',
-    'DB':'meisjes-b','MB':'meiden-b',
-    'DC':'meisjes-c','MC':'meiden-c',
-    'DD':'meisjes-d','MD':'meiden-d',
-    'HA':'jongens-a','JA':'jongens-a',
-    'HB':'jongens-b','JB':'jongens-b',
-    'HC':'jongens-c','JC':'jongens-c',
-    'HD':'jongens-d','JD':'jongens-d',
-    'GEM':'gemengd','XR':'mix-recreatief',
-    'N1':'cmv-niveau-1','N2':'cmv-niveau-2','N3':'cmv-niveau-3','N4':'cmv-niveau-4',
-    'L1':'volley-stars-level-1','L2':'volley-stars-level-2','L3':'volley-stars-level-3',
-    'L4':'volley-stars-level-4','L5':'volley-stars-level-5',
-  };
-  return m[r.toUpperCase()] || r.toLowerCase();
+function compareSelected() {
+  const cbs = document.querySelectorAll('.cmp-cb:checked');
+  if (cbs.length < 2) { alert('Selecteer minimaal 2 teams om te vergelijken.'); return; }
+  const ids = Array.from(cbs).map(cb => cb.value);
+  showComparePage(ids);
 }
 
-function typeLabel(type) {
-  const m={
-    'dames':'DS','heren':'HS',
-    'meisjes-a':'DA','meiden-a':'MA','meisjes-b':'DB','meiden-b':'MB',
-    'meisjes-c':'DC','meiden-c':'MC','meisjes-d':'DD','meiden-d':'MD',
-    'jongens-a':'JA','jongens-b':'JB','jongens-c':'JC','jongens-d':'JD',
-    'gemengd':'GEM','mix-recreatief':'XR',
-    'cmv-niveau-1':'N1','cmv-niveau-2':'N2','cmv-niveau-3':'N3','cmv-niveau-4':'N4',
-    'volley-stars-level-1':'L1','volley-stars-level-2':'L2','volley-stars-level-3':'L3',
-    'volley-stars-level-4':'L4','volley-stars-level-5':'L5',
-  };
-  return m[type] || type;
+async function showComparePage(ids) {
+  const M = document.getElementById('M');
+  M.innerHTML = '<div class="compare-banner fade-up"><h2>Vergelijk Teams</h2><button class="btn-refresh" data-action="home">← Terug</button></div><div class="nd">⏳ Gegevens ophalen...</div>';
+
+  const results = [];
+  for (const id of ids) {
+    const team = TR[id] || getFavTeams().find(t=>t.id===id);
+    if (!team) continue;
+    const key = cacheKey(team.code, team.type, team.nr);
+    let allMatches = getCached(key);
+    if (!allMatches) {
+        try {
+            const [resXml, prgXml] = await Promise.allSettled([ fetchRSS(teamUrl(team.code, team.type, team.nr)), fetchRSS(programmaUrl(team.code, team.type, team.nr)) ]);
+            const played = resXml.status === 'fulfilled' ? parseRSS(resXml.value) : [];
+            const planned = prgXml.status === 'fulfilled' ? parseRSS(prgXml.value) : [];
+            const playedTs = new Set(played.filter(m=>m.ts).map(m=>m.ts));
+            const futurePlanned = planned.filter(m => m.ts && !playedTs.has(m.ts));
+            allMatches = [...played, ...futurePlanned];
+            setCached(key, allMatches);
+        } catch(e) { continue; }
+    }
+    const enriched = enrichHA(allMatches, team.name);
+    const played = enriched.filter(m=>m.result!==null);
+    const wins = played.filter(m=>m.result==='W').length;
+    const losses = played.filter(m=>m.result==='L').length;
+    const pts = played.reduce((s,m)=>s+(m.points||0),0);
+    const winPct = played.length ? Math.round((wins/played.length)*100) : 0;
+    
+    // Recent streak
+    const recent = played.slice(0,5).map(m => '<span class="bdg b'+m.result+'" style="margin-right:2px;padding:2px 5px">'+m.result+'</span>').join('');
+
+    results.push({ team, played: played.length, wins, losses, pts, winPct, recent });
+  }
+
+  let html = '<div class="compare-banner fade-up"><h2>Team Vergelijking</h2><button class="btn-refresh" data-action="home">← Home</button></div>';
+  html += '<div class="fade-up" style="overflow-x:auto;"><table class="compare-table"><thead><tr><th>Statistiek</th>';
+  results.forEach(r => { html += '<th>'+esc(r.team.name)+'</th>'; });
+  html += '</tr></thead><tbody>';
+
+  const rows = [
+    { label: 'Gespeeld', key: 'played' },
+    { label: 'Gewonnen', key: 'wins' },
+    { label: 'Verloren', key: 'losses' },
+    { label: 'Punten behaald', key: 'pts' },
+    { label: 'Winpercentage', key: 'winPct', fmt: v => v+'%' },
+    { label: 'Recente Vorm (5)', key: 'recent', noBold: true }
+  ];
+
+  rows.forEach(row => {
+    html += '<tr><td>'+row.label+'</td>';
+    results.forEach(r => {
+      let val = r[row.key];
+      if(row.fmt) val = row.fmt(val);
+      html += '<td>'+(row.noBold?val:'<strong>'+val+'</strong>')+'</td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  M.innerHTML = html;
 }
 
 // ═══════════════════════════════════════════
-//  DISCOVER TEAMS — van oude versie
+//  DISCOVER TEAMS
 // ═══════════════════════════════════════════
 async function discoverAllTeams(code, nameHint) {
-  const TYPE_RE = /\b(DS|HS|DA|DB|DC|DD|HA|HB|HC|HD|JA|JB|JC|JD|MA|MB|MC|MD|GEM|XR|N[1-4]|L[1-5])\s*(\d*)\b/i;
+  const cacheK = 'teams__' + code.toUpperCase();
+  const cached = getCached(cacheK);
+  if (cached) {
+    cached.forEach(t => { TR[t.id] = t; });
+    return cached;
+  }
 
-  // Stap 1: haal de verenigings-RSS op om te weten welke TYPEN bestaan
+  const TYPE_RE = /\b(DS|HS|DA|DB|DC|DD|HA|HB|HC|HD|JA|JB|JC|JD|MA|MB|MC|MD|GEM|XR|N[1-4]|L[1-5])\s*(\d*)\b/i;
   const xml = await fetchRSS(verUrl(code));
   const allItems = parseRSS(xml);
   if (!allItems.length) throw new Error('Geen wedstrijden gevonden voor code '+code+'.');
 
-  // Bepaal welke teamTYPEN de club heeft door te kijken naar THUISTEAMS
   const thuisPerType = {};
   allItems.forEach(m => {
     if (!m.thuis) return;
@@ -841,46 +864,33 @@ async function discoverAllTeams(code, nameHint) {
     thuisPerType[type].add(nr);
   });
 
-  if (!Object.keys(thuisPerType).length) {
-    throw new Error('Kon geen teamtypen herkennen voor code '+code+'.');
-  }
+  if (!Object.keys(thuisPerType).length) throw new Error('Kon geen teamtypen herkennen.');
 
-  // Stap 2: probe alle kandidaat-nummers direct via team-RSS
   const verifiedTeams = [];
-
   await Promise.all(Object.entries(thuisPerType).map(async ([type, nrSet]) => {
     const maxFound = Math.max(...nrSet);
     const candidates = [];
     for (let nr = 1; nr <= maxFound + 1; nr++) candidates.push(nr);
-
     const results = await Promise.all(candidates.map(async nr => {
-      try {
-        const txml = await fetchRSS(teamUrl(code, type, nr));
-        const titems = parseRSS(txml);
-        if (titems.length > 0) return nr;
-      } catch {}
+      try { const txml = await fetchRSS(teamUrl(code, type, nr)); if (parseRSS(txml).length > 0) return nr; } catch {}
       return null;
     }));
-
     results.forEach(nr => {
       if (nr !== null) {
-        const clubName = nameHint || code;
-        const name = clubName + ' ' + typeLabel(type) + ' ' + nr;
+        const name = (nameHint || code) + ' ' + typeLabel(type) + ' ' + nr;
         verifiedTeams.push({ id: teamId(code, type, nr), name, code: code.toUpperCase(), type, nr });
       }
     });
   }));
 
-  if (!verifiedTeams.length) {
-    throw new Error('Geen actieve teams gevonden voor code '+code+'.');
-  }
-
+  if (!verifiedTeams.length) throw new Error('Geen actieve teams gevonden.');
   verifiedTeams.sort((a, b) => a.type.localeCompare(b.type) || a.nr - b.nr);
+  setCached('teams__' + code.toUpperCase(), verifiedTeams);
   return verifiedTeams;
 }
 
 // ═══════════════════════════════════════════
-//  VERENIGING PAGE
+//  VERENIGING PAGE (MERGED LAYOUT)
 // ═══════════════════════════════════════════
 async function showAssocPage(code, name) {
   const myGen = ++gen;
@@ -890,261 +900,215 @@ async function showAssocPage(code, name) {
 
   const C = code.toUpperCase();
   const clubName = name || CLUBS[C]?.name || C;
-
   const M = document.getElementById('M');
-  M.innerHTML = mkAssocBanner(C, clubName, true) +
-    '<div id="AC"><div class="nd" style="padding:60px"><span class="spin" style="font-size:1.4rem">⟳</span><br><br>Teams ontdekken voor '+esc(clubName)+'…</div></div>';
+
+  // In-memory cache: toon direct zonder netwerk
+  if (PAGE_CACHE.assoc[C]) {
+    const pc = PAGE_CACHE.assoc[C];
+    M.innerHTML = pc.html;
+    renderAssocChart(pc.wins, pc.losses, pc.chartId);
+    return;
+  }
+
+  M.innerHTML = mkAssocBanner(C, clubName, true) + '<div id="AC"><div class="nd" style="padding:60px"><span class="spin" style="font-size:1.4rem">⟳</span><br><br>Teams ontdekken...</div></div>';
 
   try {
     const teams = await discoverAllTeams(C, clubName);
     if (myGen !== gen) return;
 
-    // Laad alle teams en toon in de UI
-    let html = mkAssocBanner(C, clubName, false) +
-      '<div id="AC"><div style="max-width:1100px;margin:0 auto;padding:0 24px 60px"><div style="display:grid;grid-template-columns:240px 1fr;gap:20px;align-items:start">' +
-      '<div style="display:flex;flex-direction:column;gap:12px">';
+    const cacheK = 'assoc__'+C;
+    let allItems = getCached(cacheK);
+    if (!allItems) {
+      const xml = await fetchRSS(verUrl(C));
+      if (myGen !== gen) return;
+      allItems = parseRSS(xml);
+      setCached(cacheK, allItems);
+    }
 
-    // Teams lijst links
+    const favIds = new Set(getFavTeams().map(t=>t.id));
+    
+    // Left col: Teams (Scrollable)
+    let teamsHtml = '<div style="display:flex;flex-direction:column;height:600px;"><div style="font-size:.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;flex-shrink:0">Teams ('+teams.length+')</div><div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:6px;">';
     teams.forEach(t => {
-      html += '<button class="team-li" data-tid="'+esc(t.id)+'" style="padding:11px 13px;text-align:left;border:1px solid var(--gray-200);border-radius:8px;background:var(--white);cursor:pointer;font-size:.88rem;transition:background .1s;font-weight:500">'+
-        esc(t.name) +
-      '</button>';
+      const isFav = favIds.has(t.id);
+      teamsHtml += '<div class="team-li" data-tid="'+esc(t.id)+'" style="border:1px solid var(--gray-200);border-radius:8px;background:var(--white);">'+
+        '<div class="team-li-info"><div class="team-li-name">'+esc(t.name)+'</div><div class="team-li-meta">'+esc(typeLabel(t.type))+' '+t.nr+'</div></div>'+
+      '</div>';
+      TR[t.id] = t; // Register for navigation
     });
+    teamsHtml += '</div></div>';
 
-    html += '</div><div id="team-detail" style="background:var(--white);border:1px solid var(--gray-200);border-radius:12px;padding:20px">' +
-      '<div class="nd" style="padding:40px;text-align:center;color:var(--gray-400)">Selecteer een team</div>' +
-      '</div></div></div></div>';
+    // Middle col: Recent matches (Tcard style)
+    const recentMatches = allItems.slice(0, 10);
+    let matchesHtml = '<div><div style="font-size:.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Recente wedstrijden</div>';
+    matchesHtml += '<div class="tcard" style="overflow-x:auto;"><table><thead><tr><th>Datum</th><th>Tijd</th><th>Loc.</th><th>Tegenstander</th><th>Stand</th><th>Resultaat</th><th>Pnt</th></tr></thead><tbody>';
 
-    M.innerHTML = html;
+    // Bepaal of onze vereniging "Thuis" of "Uit" is door te zoeken naar de clubnaam
+    const words = clubName.toLowerCase().split(/\s+/).filter(w=>w.length>2 && !/^\d+$/.test(w));
+    if (words.length === 0) words.push(C.toLowerCase());
 
-    // Wire team-buttons
-    document.querySelectorAll('.team-li[data-tid]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tid = btn.dataset.tid;
-        const team = teams.find(t => t.id === tid);
-        if (team) loadTeam(team);
+    if (recentMatches.length) {
+      recentMatches.forEach(m => {
+        const tl = (m.thuis||'').toLowerCase();
+        const isHome = words.some(w => tl.includes(w));
+        const opponent = isHome ? m.uit : m.thuis;
+        
+        let result = '', resultTxt = '—', points = '', bdgStyle = '';
+        if (m.scoreStr) {
+          const teamWon = isHome ? m.sw > m.sl : m.sl > m.sw;
+          const teamSets = isHome ? m.sw : m.sl;
+          const oppSets  = isHome ? m.sl : m.sw;
+
+          if (teamSets === oppSets) {
+            result = 'D'; resultTxt = 'Gelijk'; points = 1;
+            bdgStyle = 'background:var(--yellow-lt);color:var(--yellow)'; // Geel voor gelijkspel
+          } else {
+            result = teamWon ? 'W' : 'L';
+            resultTxt = teamWon ? 'Gewonnen' : 'Verloren';
+            if (teamWon) points = oppSets <= 1 ? 3 : 2;
+            else points = teamSets === 2 ? 1 : 0;
+            bdgStyle = teamWon ? 'background:var(--green-lt);color:var(--green)' : 'background:var(--red-lt);color:var(--red)';
+          }
+        }
+
+        const matchLink = m.link ? ' <a href="'+esc(m.link)+'" target="_blank" style="color:var(--blue);font-size:.7rem;font-family:var(--mono);text-decoration:none">↗</a>' : '';
+
+        matchesHtml += '<tr>'+
+          '<td style="font-family:var(--mono);font-size:.78rem;white-space:nowrap">'+esc(m.dateStr)+'</td>'+
+          '<td style="font-family:var(--mono);font-size:.78rem;color:var(--gray-400)">'+esc(m.timeStr||'—')+'</td>'+
+          '<td>'+(isHome ? '<span class="lh">Thuis</span>' : '<span class="la">Uit</span>')+'</td>'+
+          '<td><strong>'+esc(opponent||'—')+'</strong>'+matchLink+'</td>'+
+          '<td class="score">'+(m.scoreStr||'—')+'</td>'+
+          '<td>'+(m.scoreStr ? '<span class="bdg" style="'+bdgStyle+'">'+resultTxt+'</span>' : '—')+'</td>'+
+          '<td class="pts-val pts-'+points+'">'+(m.scoreStr ? points : '—')+'</td>'+
+        '</tr>';
       });
-    });
+    } else {
+      matchesHtml += '<tr><td colspan="7" class="nd">Geen wedstrijden</td></tr>';
+    }
+    matchesHtml += '</tbody></table></div></div>';
+
+    // Right col: Stats & Chart
+    const played = allItems.filter(m => m.scoreStr);
+    const wins = played.filter(m => { const [sw, sl] = m.scoreStr.split('-').map(Number); return sw > sl; }).length;
+    const losses = played.length - wins;
+    const winPct = played.length ? Math.round(wins / played.length * 100) : 0;
+    const chartId = 'assoc-chart-' + C + '-' + Date.now();
+
+    // Bereken extra stats voor inzichten
+    const pts3 = played.filter(m => { const [sw,sl]=m.scoreStr.split('-').map(Number); return sw>sl && sl<=1; }).length;
+    const pts2 = played.filter(m => { const [sw,sl]=m.scoreStr.split('-').map(Number); return sw>sl && sl===2; }).length;
+    const bestTeam = teams.reduce((best, t) => {
+      // we gebruiken de teamlijst zelf hier — data volgt uit snaps als die er zijn
+      return best;
+    }, null);
+
+    // Inzichten voor de vereniging op basis van beschikbare data
+    const assocInsights = [];
+    if (played.length >= 5) {
+      if (winPct >= 65) assocInsights.push({ type:'pos', icon:'🏆', title:'Sterk seizoen', text:`Verenigingsbrede winratio van ${winPct}%. Goed seizoen voor ${esc(clubName)}!` });
+      else if (winPct <= 35) assocInsights.push({ type:'neg', icon:'📉', title:'Zwaar seizoen', text:`Slechts ${winPct}% van alle wedstrijden gewonnen. Er is duidelijk ruimte voor verbetering.` });
+
+      if (pts3 > 0 && wins > 0) {
+        const domPct = Math.round(pts3 / wins * 100);
+        if (domPct >= 60) assocInsights.push({ type:'pos', icon:'💪', title:'Dominant bij winst', text:`${domPct}% van de overwinningen eindigde zonder setsverlies (3-0 of 3-1).` });
+      }
+
+      if (teams.length >= 3) assocInsights.push({ type:'neu', icon:'👥', title:`${teams.length} actieve teams`, text:`${esc(clubName)} heeft ${teams.length} actieve teams dit seizoen. Klik op een team voor gedetailleerde statistieken.` });
+    } else if (played.length > 0) {
+      assocInsights.push({ type:'neu', icon:'📊', title:'Seizoen op gang', text:`${played.length} wedstrijden gespeeld. Meer inzichten komen beschikbaar naarmate het seizoen vordert.` });
+    }
+
+    const insHtml = assocInsights.length
+      ? '<div style="margin-top:14px">'+assocInsights.map(i=>'<div class="ins '+i.type+'" style="margin-bottom:8px"><div class="ins-i">'+i.icon+'</div><div><h4>'+i.title+'</h4><p>'+i.text+'</p></div></div>').join('')+'</div>'
+      : '';
+
+    let statsHtml = '<div><div style="font-size:.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Statistieken</div>' +
+      '<div style="background:var(--white);border:1px solid var(--gray-200);border-radius:12px;padding:16px">' +
+        '<div style="position:relative;height:140px;margin-bottom:16px;display:flex;align-items:center;justify-content:center"><canvas id="'+chartId+'" style="max-height:140px;width:140px"></canvas></div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;text-align:center">' +
+          '<div><div style="font-size:.7rem;color:var(--green);font-weight:600;margin-bottom:2px">GEWONNEN</div><div style="font-size:1.3rem;font-weight:700;color:var(--green)">'+wins+'</div></div>' +
+          '<div><div style="font-size:.7rem;color:var(--red);font-weight:600;margin-bottom:2px">VERLOREN</div><div style="font-size:1.3rem;font-weight:700;color:var(--red)">'+losses+'</div></div>' +
+        '</div>' +
+        '<div style="text-align:center;border-top:1px solid var(--gray-100);padding-top:12px">' +
+          '<div style="font-size:.7rem;color:var(--gray-400);font-weight:600;margin-bottom:4px">WINPERCENTAGE</div>' +
+          '<div style="font-size:1.4rem;font-weight:700;color:var(--blue)">'+winPct+'%</div>' +
+        '</div>' +
+      '</div>'+
+      insHtml+
+    '</div>';
+
+    M.innerHTML = mkAssocBanner(C, clubName, false) + 
+      '<div class="assoc-grid fade-up">' + teamsHtml + matchesHtml + statsHtml + '</div>';
+
+    // Sla op in page cache voor instant terugnavigatie
+    PAGE_CACHE.assoc[C] = { html: M.innerHTML, wins, losses, chartId };
+
+    // Make chart
+    renderAssocChart(wins, losses, chartId);
 
   } catch(e) {
     if (myGen !== gen) return;
-    M.innerHTML = mkAssocBanner(C, clubName, false) +
-      '<div class="err"><b>⚠️ Kon teams niet ontdekken</b><br><small>'+esc(e.message)+'</small></div>';
+    M.innerHTML = mkAssocBanner(C, clubName, false) + '<div class="err"><b>⚠️ Kon data niet laden</b><br><small>'+esc(e.message)+'</small></div>';
   }
 }
 
+function renderAssocChart(wins, losses, chartId) {
+  setTimeout(() => {
+    const chartCanvas = document.getElementById(chartId);
+    if (chartCanvas && (wins > 0 || losses > 0)) {
+      charts['assoc'] = new Chart(chartCanvas.getContext('2d'), {
+        type: 'doughnut', data: { labels: ['Gewonnen', 'Verloren'], datasets: [{ data: [wins, losses], backgroundColor: ['#16a34a', '#dc2626'], borderColor: '#fff', borderWidth: 2 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+    }
+  }, 50);
+}
+
 function refreshAssoc(code, name) {
-  delCached('assoc__'+code.toUpperCase());
+  const C = code.toUpperCase();
+  delCached('assoc__' + C);
+  delCached('teams__' + C);
+  delete PAGE_CACHE.assoc[C];
   showAssocPage(code, name);
 }
 
 function mkAssocBanner(code, name, loading) {
-  const saved = isAssocSaved(code);
+  const isSaved = isAssocSaved(code);
   return '<div class="assoc-banner fade-up">'+
     '<button class="back-btn" data-action="home" title="Terug">←</button>'+
     '<div class="assoc-banner-ico">🏟️</div>'+
-    '<div class="assoc-banner-info">'+
-      '<h2>'+esc(name)+'</h2>'+
-      '<div class="assoc-banner-meta">'+esc(code)+' · seizoen 2025-2026</div>'+
-    '</div>'+
+    '<div class="assoc-banner-info"><h2>'+esc(name)+'</h2><div class="assoc-banner-meta">'+esc(code)+' · seizoen 2025-2026</div></div>'+
     '<div class="assoc-actions">'+
-      (loading
-        ? '<div class="badge-loading"><span class="spin">⟳</span> Laden</div>'
-        : '<button class="btn-refresh" data-action="refresh-assoc" data-code="'+esc(code)+'" data-name="'+esc(name)+'">🔄 Vernieuwen</button>') +
-      '<button class="btn-save'+(saved?' saved':'')+'" data-action="toggle-save-assoc" data-code="'+esc(code)+'" data-name="'+esc(name)+'">'+
-        (saved ? '✓ Opgeslagen' : '+ Opslaan')+
-      '</button>'+
-    '</div>'+
-  '</div>';
-}
-
-function renderAssocPage(code, clubName, allItems) {
-  const TYPE_RE = /\b(DS|HS|DA|DB|DC|DD|HA|HB|HC|HD|JA|JB|JC|JD|MA|MB|MC|MD|GEM|XR|N[1-4]|L[1-5])\s*(\d*)\b/i;
-
-  // Frequentietelling: eigen teams >> tegenstanders
-  const nameCount = {};
-  allItems.forEach(m => {
-    [m.thuis, m.uit].forEach(n => { if(n) nameCount[n] = (nameCount[n]||0)+1; });
-  });
-  const threshold = Math.max(1, Math.ceil(allItems.length * 0.18));
-  const ownNames  = new Set(Object.entries(nameCount).filter(([,cnt])=>cnt>=threshold).map(([n])=>n));
-
-  // Groepeer per eigen team
-  const byTeam = {};
-  allItems.forEach(m => {
-    const own = [m.thuis, m.uit].find(n => ownNames.has(n));
-    if (!own) return;
-    if (!byTeam[own]) byTeam[own] = [];
-    byTeam[own].push(m);
-  });
-
-  // Bouw team-objecten
-  const teams = [];
-  Object.entries(byTeam).forEach(([rawName, matches]) => {
-    const tm = rawName.match(TYPE_RE);
-    if (!tm) return;
-    const type = rawTypeToApiType(tm[1].toUpperCase());
-    const nr   = parseInt(tm[2]) || 1;
-    const cn   = rawName.replace(TYPE_RE,'').replace(/[-–\s]+$/,'').trim() || clubName;
-    const dispName = cn + ' ' + tm[1].toUpperCase() + ' ' + nr;
-    const obj = {
-      id: teamId(code, type, nr),
-      name: dispName,
-      rawName,
-      code: code.toUpperCase(),
-      type, nr,
-      matches
-    };
-    TR[obj.id] = { id: obj.id, name: obj.name, code: obj.code, type: obj.type, nr: obj.nr };
-    teams.push(obj);
-  });
-
-  // Sorteer op type-prio en nummer
-  const TYPE_PRIO = {DS:1,HS:2,DA:3,DB:4,DC:5,DD:6,JA:7,JB:8,JC:9,JD:10,MA:11,MB:12,MC:13,MD:14,GEM:15,XR:16};
-  teams.sort((a,b) => {
-    const at = (a.rawName.match(TYPE_RE)?.[1]||'').toUpperCase();
-    const bt = (b.rawName.match(TYPE_RE)?.[1]||'').toUpperCase();
-    return (TYPE_PRIO[at]||99) - (TYPE_PRIO[bt]||99) || a.nr - b.nr;
-  });
-
-  // Bouw stats per team
-  const teamStats = teams.map(t => {
-    const played = t.matches.filter(m=>m.scoreStr);
-    const isHomeArr = played.map(m => m.thuis === t.rawName);
-    const wins = played.filter((m,i) => isHomeArr[i] ? m.sw>m.sl : m.sl>m.sw).length;
-    const losses = played.length - wins;
-    const pts = played.reduce((s,m,i) => {
-      const isH = isHomeArr[i];
-      const tw = isH ? m.sw : m.sl;
-      const tl = isH ? m.sl : m.sw;
-      return s + (tw>tl ? (tl<=1?3:2) : (tw===2?1:0));
-    }, 0);
-    return { team:t, played:played.length, wins, losses, pts };
-  });
-
-  // Aggregaat statistieken
-  const totalGames = teamStats.reduce((s,x)=>s+x.played, 0);
-  const totalWins  = teamStats.reduce((s,x)=>s+x.wins, 0);
-  const totalLoss  = teamStats.reduce((s,x)=>s+x.losses, 0);
-  const totalPts   = teamStats.reduce((s,x)=>s+x.pts, 0);
-  const winPct     = totalGames ? Math.round(totalWins/totalGames*100) : 0;
-  const avgPerTeam = teams.length ? (totalGames/teams.length).toFixed(1) : 0;
-  const eff        = totalGames ? Math.round(totalPts/(totalGames*3)*100) : 0;
-
-  // Recente wedstrijden van vereniging (alleen eigen teams, gespeeld OF gepland)
-  const ownMatches = allItems
-    .filter(m => ownNames.has(m.thuis) || ownNames.has(m.uit))
-    .sort((a,b) => (b.ts||0)-(a.ts||0));
-  const recentList = ownMatches.slice(0, 30);
-
-  // Render banner opnieuw zonder loading
-  const M = document.getElementById('M');
-  M.innerHTML = mkAssocBanner(code, clubName, false) + '<div id="AC"></div>';
-  const AC = document.getElementById('AC');
-
-  // ── LEFT: teams lijst ──
-  const favIds = new Set(getFavTeams().map(t=>t.id));
-  const teamsHtml = teamStats.length
-    ? teamStats.map(s => {
-        const isFav = favIds.has(s.team.id);
-        const sub = s.played
-          ? s.played+'G · '+s.wins+'W · '+s.losses+'V · '+s.pts+'pnt'
-          : 'geen uitslagen';
-        return '<div class="team-li" data-tid="'+esc(s.team.id)+'">'+
-          '<div class="team-li-info">'+
-            '<div class="team-li-name">'+esc(s.team.name)+'</div>'+
-            '<div class="team-li-meta">'+esc(sub)+'</div>'+
-          '</div>'+
-          '<button class="fav-star'+(isFav?' on':'')+'" data-favtid="'+esc(s.team.id)+'" title="'+(isFav?'Verwijder uit favorieten':'Voeg toe aan favorieten')+'">★</button>'+
-        '</div>';
-      }).join('')
-    : '<div class="no-data">Geen teams gevonden</div>';
-
-  // ── MIDDLE: recente wedstrijden ──
-  const matchesHtml = recentList.length
-    ? recentList.map(m => {
-        const ownIsHome = ownNames.has(m.thuis);
-        const own = ownIsHome ? m.thuis : m.uit;
-        const opp = ownIsHome ? m.uit : m.thuis;
-        let res = 'P';
-        if (m.scoreStr) {
-          const won = ownIsHome ? m.sw>m.sl : m.sl>m.sw;
-          res = won ? 'W' : 'L';
-        }
-        const scoreDisp = m.scoreStr ? (ownIsHome ? m.scoreStr : (m.sl+'-'+m.sw)) : (m.timeStr||'—');
-        return '<div class="match-li">'+
-          '<div class="match-li-top">'+
-            '<span class="match-date">'+esc(m.dateStr)+'</span>'+
-            (m.timeStr && m.scoreStr ? '<span class="match-date">'+esc(m.timeStr)+'</span>' : '')+
-            (ownIsHome ? '<span class="lh">Thuis</span>' : '<span class="la">Uit</span>')+
-          '</div>'+
-          '<div class="match-vs">'+
-            '<span class="vs-name own">'+esc(own)+'</span>'+
-            '<span style="color:var(--gray-300);font-size:.75rem">vs</span>'+
-            '<span class="vs-name">'+esc(opp)+'</span>'+
-            '<span class="match-score '+res+'">'+esc(scoreDisp)+'</span>'+
-          '</div>'+
-        '</div>';
-      }).join('')
-    : '<div class="no-data">Nog geen wedstrijden</div>';
-
-  // ── RIGHT: stats ──
-  const statsHtml =
-    '<div class="stat-blk"><div class="stat-blk-l">Teams</div><div class="stat-blk-v blue">'+teams.length+'</div></div>'+
-    '<div class="stat-row-2">'+
-      '<div class="stat-blk"><div class="stat-blk-l">Gespeeld</div><div class="stat-blk-v">'+totalGames+'</div></div>'+
-      '<div class="stat-blk"><div class="stat-blk-l">Per team</div><div class="stat-blk-v">'+avgPerTeam+'</div></div>'+
-    '</div>'+
-    '<div class="stat-row-2">'+
-      '<div class="stat-blk"><div class="stat-blk-l">Gewonnen</div><div class="stat-blk-v green">'+totalWins+'</div></div>'+
-      '<div class="stat-blk"><div class="stat-blk-l">Verloren</div><div class="stat-blk-v red">'+totalLoss+'</div></div>'+
-    '</div>'+
-    '<div class="stat-blk"><div class="stat-blk-l">Winpercentage</div><div class="stat-blk-v '+(winPct>=50?'green':winPct>=35?'':'red')+'">'+winPct+'%</div><div class="stat-blk-s">'+totalWins+'/'+totalGames+' wedstrijden</div></div>'+
-    '<div class="stat-blk"><div class="stat-blk-l">Punten</div><div class="stat-blk-v">'+totalPts+'</div><div class="stat-blk-s">van max. '+(totalGames*3)+' ('+eff+'% efficiëntie)</div></div>';
-
-  AC.innerHTML =
-    '<div class="assoc-grid fade-up">'+
-      // LEFT
-      '<div class="assoc-col">'+
-        '<div class="assoc-col-head"><h3>Teams</h3><span class="ach-count">'+teams.length+'</span></div>'+
-        teamsHtml+
-      '</div>'+
-      // MIDDLE
-      '<div class="assoc-col">'+
-        '<div class="assoc-col-head"><h3>Recente wedstrijden</h3><span class="ach-count">'+recentList.length+'</span></div>'+
-        matchesHtml+
-      '</div>'+
-      // RIGHT
-      '<div class="assoc-col">'+
-        '<div class="assoc-col-head"><h3>Statistieken</h3></div>'+
-        statsHtml+
-      '</div>'+
-    '</div>';
+      (loading ? '<div class="badge-loading"><span class="spin">⟳</span></div>' : '<button class="btn-refresh" data-action="refresh-assoc" data-code="'+esc(code)+'" data-name="'+esc(name)+'">🔄</button>') +
+      '<button class="btn-save'+(isSaved?' saved':'')+'" data-action="toggle-save-assoc" data-code="'+esc(code)+'" data-name="'+esc(name)+'">'+(isSaved?'✓ Opgeslagen':'+ Opslaan')+'</button>'+
+    '</div></div>';
 }
 
 // ═══════════════════════════════════════════
 //  TEAM PAGE
 // ═══════════════════════════════════════════
 async function loadTeam(team) {
-  const myGen = ++gen;
-  destroyCharts();
-  SB.classList.remove('open');
-  document.getElementById('favDD').classList.remove('open');
+  const myGen = ++gen; destroyCharts();
+  SB.classList.remove('open'); document.getElementById('favDD').classList.remove('open');
   TR[team.id] = team;
-
   const M = document.getElementById('M');
-  M.innerHTML = mkBanner(team, true) +
-    '<div id="TC"><div class="nd">⏳ Gegevens ophalen…</div></div>';
+
+  // In-memory cache: toon direct zonder netwerk
+  if (PAGE_CACHE.team[team.id]) {
+    M.innerHTML = PAGE_CACHE.team[team.id].html;
+    renderTeamCharts(PAGE_CACHE.team[team.id].matches, team);
+    return;
+  }
+
+  M.innerHTML = mkBanner(team, true) + '<div id="TC"><div class="nd">⏳ Gegevens ophalen…</div></div>';
 
   const key = cacheKey(team.code, team.type, team.nr);
   let allMatches = getCached(key);
 
   if (!allMatches) {
     try {
-      const [resXml, prgXml] = await Promise.allSettled([
-        fetchRSS(teamUrl(team.code, team.type, team.nr)),
-        fetchRSS(programmaUrl(team.code, team.type, team.nr))
-      ]);
+      const [resXml, prgXml] = await Promise.allSettled([fetchRSS(teamUrl(team.code, team.type, team.nr)), fetchRSS(programmaUrl(team.code, team.type, team.nr))]);
       if (myGen !== gen) return;
       const played  = resXml.status === 'fulfilled' ? parseRSS(resXml.value) : [];
       const planned = prgXml.status === 'fulfilled' ? parseRSS(prgXml.value) : [];
@@ -1155,46 +1119,144 @@ async function loadTeam(team) {
       setCached(key, allMatches);
     } catch(e) {
       if (myGen !== gen) return;
-      M.innerHTML = mkBanner(team, false) +
-        '<div class="err"><b>⚠️ Kon data niet laden</b><br><small>'+esc(e.message)+'</small></div>';
-      return;
+      M.innerHTML = mkBanner(team, false) + '<div class="err"><b>⚠️ Kon data niet laden</b><br><small>'+esc(e.message)+'</small></div>'; return;
     }
   }
   if (myGen !== gen) return;
-
   allMatches = enrichHA(allMatches, team.name).sort((a,b) => (b.ts||0)-(a.ts||0));
 
+  // Detecteer seizoen uit de matches en sla snapshot op
+  const snapshotsBySeason = {};
+  allMatches.forEach(m => { if (m.season) { if (!snapshotsBySeason[m.season]) snapshotsBySeason[m.season] = []; snapshotsBySeason[m.season].push(m); } });
+  Object.entries(snapshotsBySeason).forEach(([season, sMatches]) => {
+    saveSeasonSnapshot(team.id, season, sMatches);
+  });
+
+  // Extraheer poule-info uit de eerste wedstrijd-link voor de stand-feed
+  const firstLink = allMatches.find(m => m.link)?.link || '';
+  const pouleInfo = pouleFromLink(firstLink);
+
   M.innerHTML = mkBanner(team, false) + '<div id="TC"></div>';
-  renderTeam(allMatches, team);
+  renderTeam(allMatches, team, null);
+
+  // Laad de stand asynchroon en render die apart in
+  if (pouleInfo) {
+    const standCacheKey = 'stand__' + pouleInfo.regio + '__' + pouleInfo.poule;
+    let standData = getCached(standCacheKey);
+    if (!standData) {
+      try {
+        const standXml = await fetchRSS(standUrl(pouleInfo.regio, pouleInfo.poule));
+        if (myGen !== gen) return;
+        standData = parseStand(standXml);
+        if (standData.length) setCached(standCacheKey, standData);
+      } catch(e) { standData = null; }
+    }
+    if (myGen !== gen) return;
+    if (standData && standData.length) renderStand(standData, team.name);
+  }
+
+  // Sla op in page cache na render
+  PAGE_CACHE.team[team.id] = { html: M.innerHTML, matches: allMatches };
 }
 
 function refreshTeam(tid) {
   const team = TR[tid] || getFavTeams().find(t=>t.id===tid);
   if (!team) return;
   delCached(cacheKey(team.code, team.type, team.nr));
+  delete PAGE_CACHE.team[tid];
   loadTeam(team);
+}
+
+// Injecteer stand-tabel in de placeholder die renderTeam heeft aangemaakt
+function renderStand(standData, teamName) {
+  const el = document.getElementById('stand-placeholder');
+  if (!el) return;
+
+  // Zoek het team in de stand op naam (fuzzy: check of een woord van teamName in de stand-naam zit)
+  const words = teamName.toLowerCase().split(/\s+/).filter(w => w.length > 2 && !/^\d+$/.test(w));
+  const myRow = standData.find(r => words.some(w => r.name.toLowerCase().includes(w)));
+  const myPos = myRow ? myRow.pos : null;
+  const total = standData.length;
+
+  // Kampioen-detectie: positie 1 én seizoen vrijwel afgerond (≥80% wedstrijden gespeeld)
+  const maxWedstr = Math.max(...standData.map(r => r.wedstr));
+  const leader = standData[0];
+  const second = standData[1];
+  const ptsDiff = second ? leader.punten - second.punten : 0;
+  const isChampion = leader && myRow && leader.name === myRow.name && maxWedstr >= 10 && ptsDiff >= 4;
+
+  let html = '';
+
+  if (isChampion) {
+    html += `<div class="champion-banner fade-up">🏆 Kampioen! <span>${esc(myRow.name)}</span> staat eerste met <strong>${ptsDiff} punt${ptsDiff!==1?'en':''} voorsprong</strong>.</div>`;
+  } else if (myPos === 1 && !isChampion) {
+    html += `<div style="background:var(--yellow-lt);border:1px solid var(--gold);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;font-size:.85rem;color:var(--yellow);font-weight:600;">🥇 Koploper! ${ptsDiff > 0 ? ptsDiff+' punt'+(ptsDiff!==1?'en':'')+' voorsprong.' : ''}</div>`;
+  }
+
+  html += '<div class="tcard"><table><thead><tr><th>#</th><th>Team</th><th>Gespeeld</th><th>Punten</th></tr></thead><tbody>';
+  standData.forEach(r => {
+    const isMe = myRow && r.pos === myRow.pos;
+    html += `<tr style="${isMe ? 'background:var(--blue-lt);font-weight:600;' : ''}">` +
+      `<td style="font-family:var(--mono);font-weight:700;color:${r.pos===1?'var(--gold)':r.pos<=3?'var(--blue)':'var(--gray-400)'}">${r.pos}</td>` +
+      `<td>${esc(r.name)}${isMe ? ' <span class="lh">Jij</span>' : ''}</td>` +
+      `<td style="font-family:var(--mono)">${r.wedstr}</td>` +
+      `<td style="font-family:var(--mono);font-weight:700">${r.punten}</td>` +
+      `</tr>`;
+  });
+  html += '</tbody></table></div>';
+
+  el.innerHTML = html;
+
+  // Update page cache na stand-inject
+  const teamIds = Object.keys(PAGE_CACHE.team);
+  teamIds.forEach(tid => {
+    if (PAGE_CACHE.team[tid]) {
+      const M = document.getElementById('M');
+      if (M) PAGE_CACHE.team[tid].html = M.innerHTML;
+    }
+  });
+}
+
+// Herteken Chart.js grafieken na herstel vanuit page cache
+// (canvas-inhoud gaat verloren bij innerHTML, data blijft in matches beschikbaar)
+function renderTeamCharts(matches, team) {
+  const played = matches.filter(m => m.result !== null);
+  const wins   = played.filter(m => m.result === 'W').length;
+  const losses = played.filter(m => m.result === 'L').length;
+
+  // Winratio donut
+  const c1 = document.getElementById('chart-winratio-' + team.id);
+  if (c1 && (wins > 0 || losses > 0)) {
+    charts['winratio'] = new Chart(c1.getContext('2d'), {
+      type: 'doughnut',
+      data: { labels: ['Gewonnen','Verloren'], datasets: [{ data: [wins, losses], backgroundColor: ['#16a34a','#dc2626'], borderColor:'#fff', borderWidth:2 }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } }
+    });
+  }
+
+  // Punten per wedstrijd lijndiagram
+  const c2 = document.getElementById('chart-points-' + team.id);
+  if (c2 && played.length) {
+    const recent = played.slice(0, 10).reverse();
+    charts['points'] = new Chart(c2.getContext('2d'), {
+      type: 'line',
+      data: { labels: recent.map(m => m.dateStr), datasets: [{ data: recent.map(m => m.points), borderColor:'#1a6ef5', backgroundColor:'rgba(26,110,245,.08)', tension:.3, pointRadius:4, fill:true }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ min:0, max:3, ticks:{ stepSize:1 } } } }
+    });
+  }
 }
 
 function mkBanner(team, loading) {
   const isFav = isFavTeam(team.id);
   const clubName = clubNameFromTeam(team.name);
-  const clubCode = team.code.toUpperCase();
   return '<div class="team-banner fade-up">'+
-    '<button class="back-btn" data-action="back-to-assoc" data-code="'+esc(clubCode)+'" data-name="'+esc(clubName)+'" title="Terug naar vereniging">←</button>'+
+    '<button class="back-btn" data-action="back-to-assoc" data-code="'+esc(team.code)+'" data-name="'+esc(clubName)+'">←</button>'+
     '<div class="banner-ico">🏐</div>'+
-    '<div class="banner-info">'+
-      '<h2>'+esc(team.name)+'</h2>'+
-      '<div class="banner-meta">'+esc(team.code)+' · <b>'+esc(typeLabel(team.type))+'</b> · team '+team.nr+' · seizoen 2025-2026</div>'+
-    '</div>'+
+    '<div class="banner-info"><h2>'+esc(team.name)+'</h2><div class="banner-meta">'+esc(team.code)+' · <b>'+esc(typeLabel(team.type))+'</b> · team '+team.nr+' · seizoen 2025-2026</div></div>'+
     '<div class="assoc-actions">'+
-      (loading
-        ? '<div class="badge-loading"><span class="spin">⟳</span> Laden</div>'
-        : '<button class="btn-refresh" data-action="refresh-team" data-tid="'+esc(team.id)+'">🔄 Vernieuwen</button>') +
-      '<button class="btn-save'+(isFav?' saved':'')+'" data-action="toggle-fav-team" data-tid="'+esc(team.id)+'">'+
-        (isFav ? '★ Favoriet' : '☆ Favoriet')+
-      '</button>'+
-    '</div>'+
-  '</div>';
+      (loading ? '<div class="badge-loading"><span class="spin">⟳</span></div>' : '<button class="btn-refresh" data-action="refresh-team" data-tid="'+esc(team.id)+'">🔄</button>') +
+      '<button class="btn-save'+(isFav?' saved':'')+'" data-action="toggle-fav-team" data-tid="'+esc(team.id)+'">'+(isFav ? '★ Favoriet' : '☆ Favoriet')+'</button>'+
+    '</div></div>';
 }
 
 function renderTeam(matches, team) {
@@ -1209,22 +1271,27 @@ function renderTeam(matches, team) {
   const awayP  = played.filter(m=>!m.isHome);
   const homeW  = homeP.filter(m=>m.result==='W').length;
   const awayW  = awayP.filter(m=>m.result==='W').length;
-  const recent     = played.slice(0,8).reverse();
-  const playedDesc = played;
+  const recent = played.slice(0,8).reverse();
 
-  const withSets = played.filter(m=>m.sets.length>=3);
-  const setSt = [0,1,2,3,4].map(i=>{
-    const rel = withSets.filter(m=>m.sets.length>i);
-    if (rel.length<2) return null;
-    const sw = rel.filter(m => m.isHome ? m.sets[i][0]>m.sets[i][1] : m.sets[i][1]>m.sets[i][0]);
-    return {set:i+1, total:rel.length, wins:sw.length, pct:Math.round(sw.length/rel.length*100)};
-  }).filter(Boolean);
+  // ── Inzichten berekenen ──
+  const insights = buildInsights(played, homeP, awayP, homeW, awayW, wins, losses, future, team);
 
-  const sd = {};
-  played.forEach(m => { if (m.scoreStr) sd[m.scoreStr] = (sd[m.scoreStr]||0)+1; });
+  // ── Tegenstander-analyse ──
+  const oppMap = {};
+  played.forEach(m => {
+    if (!m.opponent) return;
+    if (!oppMap[m.opponent]) oppMap[m.opponent] = { w:0, l:0, pts:0 };
+    oppMap[m.opponent].w   += m.result==='W' ? 1 : 0;
+    oppMap[m.opponent].l   += m.result==='L' ? 1 : 0;
+    oppMap[m.opponent].pts += m.points || 0;
+  });
+  const oppRows = Object.entries(oppMap).sort((a,b) => (b[1].w - a[1].w) || (a[1].l - b[1].l));
 
-  let rp = 0;
-  const rpArr = [...played].reverse().map(m => { rp += (m.points||0); return rp; });
+  // ── Vorig seizoen ──
+  const curSeason = currentSeason();
+  const allSnapshots = listSeasonSnapshots(team.id);
+  const prevSnapshots = allSnapshots.filter(s => s.season !== curSeason);
+  const prevSnap = prevSnapshots[0] || null;
 
   const TC = document.getElementById('TC');
   TC.innerHTML =
@@ -1233,196 +1300,181 @@ function renderTeam(matches, team) {
       sv('c-green','Gewonnen',wins.length,winPct+'% winratio')+
       sv('c-red','Verloren',losses.length,'')+
       sv('','Punten',pts,'van max. '+maxPts)+
-      sv('','Efficiëntie',(maxPts?Math.round(pts/maxPts*100):0)+'%','')+
     '</div>'+
+
+    // ── Inzichten ──
+    (insights.length ? '<div class="ins-grid fade-up">'+insights.map(renderInsight).join('')+'</div>' : '')+
 
     '<div class="tabs-wrap"><div class="tabs">'+
       '<button class="tab on" data-pane="tr">Uitslagen</button>'+
       '<button class="tab" data-pane="tp">Programma</button>'+
-      '<button class="tab" data-pane="ta">Analyse</button>'+
+      '<button class="tab" data-pane="topp">Tegenstanders</button>'+
+      (prevSnap ? '<button class="tab" data-pane="tprev">Vorig seizoen <span style="font-size:.65rem;opacity:.6">'+prevSnap.season+'</span></button>' : '')+
     '</div></div>'+
 
     '<div id="tr" class="pane on">'+
-      (recent.length
-        ? '<div class="sl">Recente vorm <span style="font-weight:400;color:var(--gray-400)">— ← oudst &nbsp; meest recent →</span></div>'+
-          '<div class="form-row">'+
-            recent.map(m=>'<div class="fd '+m.result+'" title="'+esc(m.dateStr)+' – '+esc(m.opponent)+' '+m.scoreStr+'">'+m.result+'</div>').join('')+
-            '<span class="form-lbl">laatste '+recent.length+' wedstrijden</span>'+
-          '</div>'
-        : '')+
-      '<div class="tcard"><table>'+
-        '<thead><tr><th>Datum</th><th>Tijd</th><th>Loc.</th><th>Tegenstander</th><th>Stand</th><th>Resultaat</th><th>Pnt</th></tr></thead>'+
-        '<tbody>'+
-          (playedDesc.length
-            ? playedDesc.map(m=>
-                '<tr>'+
-                '<td style="font-family:var(--mono);font-size:.78rem;white-space:nowrap">'+m.dateStr+'</td>'+
-                '<td style="font-family:var(--mono);font-size:.78rem;color:var(--gray-400)">'+(m.timeStr||'—')+'</td>'+
-                '<td>'+(m.isHome?'<span class="lh">Thuis</span>':'<span class="la">Uit</span>')+'</td>'+
-                '<td><strong>'+esc(m.opponent||'—')+'</strong>'+
-                  (m.link?' <a href="'+esc(m.link)+'" target="_blank" style="color:var(--blue);font-size:.7rem;font-family:var(--mono)">↗</a>':'')+'</td>'+
-                '<td class="score">'+m.scoreStr+'</td>'+
-                '<td><span class="bdg b'+m.result+'">'+(m.result==='W'?'Gewonnen':'Verloren')+'</span></td>'+
-                '<td class="pts-val pts-'+m.points+'">'+m.points+'</td>'+
-                '</tr>'
-              ).join('')
-            : '<tr><td colspan="7" class="nd">Nog geen gespeelde wedstrijden</td></tr>')+
+      (recent.length ? '<div class="sl">Recente vorm</div><div class="form-row">'+recent.map(m=>'<div class="fd '+m.result+'" title="'+esc(m.opponent)+' '+m.scoreStr+'">'+m.result+'</div>').join('')+'</div>' : '')+
+      '<div class="tcard"><table><thead><tr><th>Datum</th><th>Tijd</th><th>Loc.</th><th>Tegenstander</th><th>Stand</th><th>Resultaat</th><th>Pnt</th></tr></thead><tbody>'+
+          (played.length ? played.map(m=>'<tr><td style="font-family:var(--mono);font-size:.78rem;white-space:nowrap">'+m.dateStr+'</td><td style="font-family:var(--mono);font-size:.78rem;color:var(--gray-400)">'+(m.timeStr||'—')+'</td><td>'+(m.isHome?'<span class="lh">Thuis</span>':'<span class="la">Uit</span>')+'</td><td><strong>'+esc(m.opponent||'—')+'</strong>'+(m.link?' <a href="'+esc(m.link)+'" target="_blank" style="color:var(--blue);font-size:.7rem;font-family:var(--mono)">↗</a>':'')+'</td><td class="score">'+m.scoreStr+'</td><td><span class="bdg b'+m.result+'">'+(m.result==='W'?'Gewonnen':'Verloren')+'</span></td><td class="pts-val pts-'+m.points+'">'+m.points+'</td></tr>').join('') : '<tr><td colspan="7" class="nd">Nog geen gespeelde wedstrijden</td></tr>')+
         '</tbody></table></div>'+
     '</div>'+
 
     '<div id="tp" class="pane">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'+
-        '<span style="font-size:.82rem;color:var(--gray-400)">'+future.length+' aankomende wedstrijd'+(future.length!==1?'en':'')+'</span>'+
-        '<a href="'+EXPORT+'/team/'+team.code.toUpperCase()+'/'+team.type+'/'+team.nr+'/programma.ics" target="_blank" '+
-           'style="display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;color:var(--blue);text-decoration:none;border:1px solid var(--blue);border-radius:6px;padding:4px 10px" '+
-           'title="Importeer in Apple Kalender, Google Agenda, Outlook e.d.">'+
-          '📅 iCal exporteren'+
-        '</a>'+
-      '</div>'+
-      '<div class="tcard"><table>'+
-        '<thead><tr><th>Datum</th><th>Tijd</th><th>Thuisploeg</th><th>Uitploeg</th></tr></thead>'+
-        '<tbody>'+
-          (future.length
-            ? future.map(m=>'<tr>'+
-                '<td style="font-family:var(--mono);font-size:.78rem;white-space:nowrap">'+m.dateStr+'</td>'+
-                '<td style="font-family:var(--mono);font-size:.78rem;color:var(--gray-400)">'+(m.timeStr||'—')+'</td>'+
-                '<td>'+esc(m.thuis)+'</td>'+
-                '<td>'+esc(m.uit)+'</td>'+
-              '</tr>').join('')
-            : '<tr><td colspan="4" class="nd">Geen programma in de feed</td></tr>')+
+      '<div class="tcard"><table><thead><tr><th>Datum</th><th>Tijd</th><th>Thuisploeg</th><th>Uitploeg</th></tr></thead><tbody>'+
+          (future.length ? future.map(m=>'<tr><td style="font-family:var(--mono);font-size:.78rem;white-space:nowrap">'+m.dateStr+'</td><td style="font-family:var(--mono);font-size:.78rem;color:var(--gray-400)">'+(m.timeStr||'—')+'</td><td>'+esc(m.thuis)+'</td><td>'+esc(m.uit)+'</td></tr>').join('') : '<tr><td colspan="4" class="nd">Geen programma in de feed</td></tr>')+
         '</tbody></table></div>'+
     '</div>'+
 
-    '<div id="ta" class="pane">'+
-      (played.length<3 ? '<div class="info-box">⏳ Nog onvoldoende data voor analyse. Kom later terug!</div>' : '')+
-      '<div class="chart-grid">'+
-        (played.length>=3
-          ? '<div class="cc"><h3>Puntenscore seizoen</h3><div class="cs">Cumulatief — vlakke fase wijst op moeilijke periode.</div><canvas id="cPts"></canvas></div>'+
-            '<div class="cc"><h3>Score-verdeling</h3><div class="cs">3-0/3-1 = dominantie, 3-2 = veerkracht.</div><canvas id="cSco"></canvas></div>'
-          : '')+
-        (setSt.length>=3
-          ? '<div class="cc"><h3>Set-voor-set winratio</h3><div class="cs">Structurele zwaktes per set ('+withSets.length+' wedstrijden).</div><canvas id="cSet"></canvas></div>'
-          : '')+
-        (homeP.length>=2&&awayP.length>=2
-          ? '<div class="cc"><h3>Thuis vs Uit</h3><div class="cs">Winstpercentage eigen veld vs uitwedstrijden.</div><canvas id="cHAw"></canvas></div>'
-          : '')+
-      '</div>'+
-      '<div class="sl">Slimme inzichten</div>'+
-      '<div class="ins-grid" id="IG"></div>'+
-    '</div>';
+    '<div id="topp" class="pane">'+
+      renderOpponentTab(oppRows, future, team)+
+    '</div>'+
 
-  if (played.length>=3) {
-    mkChart('cPts', {type:'line', data:{
-      labels:played.map((_,i)=>'W'+(i+1)),
-      datasets:[{label:'Punten',data:rpArr,borderColor:'#1a6ef5',backgroundColor:'rgba(26,110,245,.06)',fill:true,tension:.35,pointRadius:3,pointBackgroundColor:'#1a6ef5'}]
-    }, options:cOpts()});
-    const sk = Object.keys(sd).sort();
-    if (sk.length) mkChart('cSco', {type:'doughnut', data:{
-      labels:sk.map(k=>{const[a,b]=k.split('-').map(Number);return a>b?'Won '+k:'Verloren '+k;}),
-      datasets:[{data:sk.map(k=>sd[k]),backgroundColor:sk.map(k=>{const[a,b]=k.split('-').map(Number);return a>b?'rgba(22,163,74,.8)':'rgba(220,38,38,.8)';}),borderColor:'#fff',borderWidth:3}]
-    }, options:{plugins:{legend:{position:'right',labels:{color:'#737373',font:{size:11,family:'DM Mono'},padding:12}}},responsive:true}});
+    (prevSnap ? '<div id="tprev" class="pane">'+renderPrevSeasonTab(prevSnap, team)+'</div>' : '');
+}
+
+function buildInsights(played, homeP, awayP, homeW, awayW, wins, losses, future, team) {
+  const ins = [];
+  if (played.length < 2) return ins;
+
+  const winPct = Math.round(wins.length / played.length * 100);
+  const homePct = homeP.length ? Math.round(homeW / homeP.length * 100) : null;
+  const awayPct = awayP.length ? Math.round(awayW / awayP.length * 100) : null;
+
+  // Thuisvoordeel / nadeel
+  if (homePct !== null && awayPct !== null && homeP.length >= 2 && awayP.length >= 2) {
+    const diff = homePct - awayPct;
+    if (diff >= 20) ins.push({ type:'pos', icon:'🏠', title:'Sterk thuis', text:`Thuis winpercentage (${homePct}%) is significant hoger dan uit (${awayPct}%). Thuis spelen maakt duidelijk verschil.` });
+    else if (diff <= -20) ins.push({ type:'neg', icon:'✈️', title:'Betere uitploeg', text:`Uitwedstrijden worden juist beter gespeeld (${awayPct}% winst) dan thuis (${homePct}%). Opvallend!` });
+    else ins.push({ type:'neu', icon:'⚖️', title:'Consistent', text:`Vergelijkbare prestaties thuis (${homePct}%) en uit (${awayPct}%). Het niveau blijft stabiel ongeacht locatie.` });
   }
-  if (setSt.length>=3) mkChart('cSet', {type:'bar', data:{
-    labels:setSt.map(s=>'Set '+s.set),
-    datasets:[{label:'Gewonnen %',data:setSt.map(s=>s.pct),backgroundColor:setSt.map(s=>s.pct>=60?'rgba(22,163,74,.8)':s.pct>=40?'rgba(217,119,6,.8)':'rgba(220,38,38,.8)'),borderRadius:6,borderSkipped:false}]
-  }, options:cOpts({max:100,unit:'%'})});
-  if (homeP.length>=2 && awayP.length>=2) mkChart('cHAw', {type:'bar', data:{
-    labels:['Thuis W','Thuis V','Uit W','Uit V'],
-    datasets:[{data:[homeW,homeP.length-homeW,awayW,awayP.length-awayW],backgroundColor:['rgba(22,163,74,.75)','rgba(220,38,38,.65)','rgba(22,163,74,.4)','rgba(220,38,38,.35)'],borderRadius:6,borderSkipped:false}]
-  }, options:cOpts()});
 
-  genInsights(played, setSt, sd, homeP, awayP, homeW, awayW, pts, maxPts);
+  // Reeks detectie
+  const recent5 = played.slice(0, 5);
+  const streak = played.reduce((acc, m) => {
+    if (acc.done) return acc;
+    if (acc.last === null || acc.last === m.result) { acc.last = m.result; acc.count++; }
+    else acc.done = true;
+    return acc;
+  }, { last: null, count: 0, done: false });
+
+  if (streak.count >= 3 && streak.last === 'W') ins.push({ type:'pos', icon:'🔥', title:`${streak.count} op rij gewonnen`, text:`Het team zit in een geweldige reeks — ${streak.count} wedstrijden achter elkaar gewonnen. Momentum zit mee!` });
+  else if (streak.count >= 3 && streak.last === 'L') ins.push({ type:'neg', icon:'📉', title:`${streak.count} op rij verloren`, text:`De laatste ${streak.count} wedstrijden allemaal verloren. Tijd om het tij te keren.` });
+
+  // 3-0 / 3-1 vs 3-2 verhouding
+  const played3pts = played.filter(m => m.points === 3);
+  const played2pts = played.filter(m => m.points === 2);
+  if (wins.length >= 3) {
+    const dominantPct = Math.round(played3pts.length / wins.length * 100);
+    if (dominantPct >= 70) ins.push({ type:'pos', icon:'💪', title:'Dominant bij overwinningen', text:`${dominantPct}% van de gewonnen wedstrijden eindigde in 3-0 of 3-1. Het team verliest nauwelijks sets als het wint.` });
+    else if (dominantPct <= 30 && wins.length >= 3) ins.push({ type:'warn', icon:'😅', title:'Veel spannende overwinningen', text:`De meeste overwinningen gaan via 3-2. Winst is winst, maar de marges zijn smal.` });
+  }
+
+  // Punten-efficiëntie
+  const pts = played.reduce((s,m)=>s+(m.points||0),0);
+  const maxPts = played.length * 3;
+  const efficiency = Math.round(pts / maxPts * 100);
+  if (played.length >= 4) {
+    if (efficiency >= 80) ins.push({ type:'pos', icon:'🏆', title:'Zeer efficiënt', text:`${efficiency}% van alle mogelijke punten behaald. Uitmuntend seizoen tot nu toe.` });
+    else if (efficiency <= 30) ins.push({ type:'neg', icon:'😬', title:'Weinig punten behaald', text:`Slechts ${efficiency}% van de mogelijke punten behaald. Er is ruimte voor verbetering.` });
+  }
+
+  // Komende wedstrijd
+  if (future.length > 0) {
+    const next = future[future.length - 1];
+    const opp = next.isHome !== undefined ? (next.isHome ? next.uit : next.thuis) : (next.uit || next.thuis);
+    ins.push({ type:'neu', icon:'📅', title:'Volgende wedstrijd', text:`${next.dateStr}${next.timeStr ? ' om '+next.timeStr : ''} — ${esc(opp||'onbekend')}.` });
+  }
+
+  return ins.slice(0, 4); // max 4 inzichten
 }
 
-function sv(cl,l,v,s) {
-  return '<div class="sc '+cl+'"><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(s?'<div class="s">'+s+'</div>':'')+'</div>';
+function renderInsight(ins) {
+  return '<div class="ins '+ins.type+'"><div class="ins-i">'+ins.icon+'</div><div><h4>'+ins.title+'</h4><p>'+ins.text+'</p></div></div>';
 }
-function cOpts({max=null,unit=''}={}) {
-  return {responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},
-    scales:{x:{ticks:{color:'#a3a3a3',font:{size:10,family:'DM Mono'}},grid:{color:'rgba(0,0,0,.04)'}},
-      y:{ticks:{color:'#a3a3a3',font:{size:10,family:'DM Mono'},callback:v=>v+unit},grid:{color:'rgba(0,0,0,.04)'},beginAtZero:true,...(max?{max}:{})}}};
+
+function renderOpponentTab(oppRows, future, team) {
+  if (!oppRows.length) return '<div class="nd">Nog geen tegenstanders om te tonen.</div>';
+
+  // Komende tegenstanders koppelen aan historische data
+  const nextOpps = new Set(future.map(m => m.thuis === team.name ? m.uit : m.thuis).filter(Boolean));
+
+  let html = '<div class="tcard" style="margin-bottom:14px"><table><thead><tr><th>Tegenstander</th><th>G</th><th>W</th><th>V</th><th>Pnt</th><th>Status</th></tr></thead><tbody>';
+  oppRows.forEach(([opp, s]) => {
+    const total = s.w + s.l;
+    const pct = Math.round(s.w / total * 100);
+    const isNext = [...nextOpps].some(n => n.toLowerCase().includes(opp.toLowerCase().split(' ')[0]) || opp.toLowerCase().includes(n.toLowerCase().split(' ')[0]));
+    const badge = isNext ? '<span class="si-tag" style="background:var(--yellow-lt);color:var(--yellow)">Volgende</span>' : '';
+    const winBadge = pct >= 67 ? '<span class="bdg bW">'+pct+'%</span>' : pct <= 33 ? '<span class="bdg bL">'+pct+'%</span>' : '<span class="bdg bP">'+pct+'%</span>';
+    html += '<tr><td><strong>'+esc(opp)+'</strong> '+badge+'</td><td style="font-family:var(--mono)">'+total+'</td><td style="font-family:var(--mono);color:var(--green)">'+s.w+'</td><td style="font-family:var(--mono);color:var(--red)">'+s.l+'</td><td style="font-family:var(--mono)">'+s.pts+'</td><td>'+winBadge+'</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  return html;
 }
-function mkChart(id,cfg) { const el = document.getElementById(id); if (!el) return; charts[id] = new Chart(el, cfg); }
+
+function renderPrevSeasonTab(snap, team) {
+  const matches = snap.matches || [];
+  const played = matches.filter(m=>m.result!==null);
+  const wins   = played.filter(m=>m.result==='W');
+  const losses = played.filter(m=>m.result==='L');
+  const pts    = played.reduce((s,m)=>s+(m.points||0),0);
+  const winPct = played.length ? Math.round(wins.length/played.length*100) : 0;
+
+  // Vergelijk met huidig seizoen (gebruikt alleen de doorgegeven stats, geen extra berekening)
+  let html = '<div class="info-box">📦 Seizoen <strong>'+snap.season+'</strong> — '+played.length+' gespeeld, '+wins.length+' gewonnen, '+losses.length+' verloren, '+pts+' punten ('+winPct+'% win)</div>';
+
+  // Tegenstander-vergelijking: zijn er tegenstanders die je ook dit seizoen tegenkomt?
+  const oppMap = {};
+  played.forEach(m => {
+    if (!m.opponent) return;
+    if (!oppMap[m.opponent]) oppMap[m.opponent] = { w:0, l:0 };
+    oppMap[m.opponent].w += m.result==='W'?1:0;
+    oppMap[m.opponent].l += m.result==='L'?1:0;
+  });
+
+  html += '<div class="tcard"><table><thead><tr><th>Datum</th><th>Loc.</th><th>Tegenstander</th><th>Stand</th><th>Resultaat</th><th>Pnt</th></tr></thead><tbody>';
+  if (played.length) {
+    html += played.map(m =>
+      '<tr>'+
+      '<td style="font-family:var(--mono);font-size:.78rem;white-space:nowrap">'+m.dateStr+'</td>'+
+      '<td>'+(m.isHome?'<span class="lh">Thuis</span>':'<span class="la">Uit</span>')+'</td>'+
+      '<td><strong>'+esc(m.opponent||'—')+'</strong></td>'+
+      '<td class="score">'+m.scoreStr+'</td>'+
+      '<td><span class="bdg b'+m.result+'">'+(m.result==='W'?'Gewonnen':'Verloren')+'</span></td>'+
+      '<td class="pts-val pts-'+m.points+'">'+m.points+'</td>'+
+      '</tr>'
+    ).join('');
+  } else {
+    html += '<tr><td colspan="6" class="nd">Geen data beschikbaar voor dit seizoen.</td></tr>';
+  }
+  html += '</tbody></table></div>';
+
+  if (!played.length) {
+    html += '<div class="info-box" style="margin-top:12px">💡 <strong>Tip:</strong> Seizoensdata wordt automatisch opgeslagen zodra je een team bekijkt. Bezoek dit team aan het einde van het huidige seizoen om de data voor volgend seizoen te bewaren.</div>';
+  }
+
+  return html;
+}
+
+function sv(cl,l,v,s) { return '<div class="sc '+cl+'"><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(s?'<div class="s">'+s+'</div>':'')+'</div>'; }
 function destroyCharts() { Object.values(charts).forEach(c=>{try{c.destroy();}catch{}}); charts = {}; }
-
-// ═══════════════════════════════════════════
-//  INSIGHTS
-// ═══════════════════════════════════════════
-function genInsights(played,setSt,sd,homeP,awayP,homeW,awayW,pts,maxPts) {
-  const ins=[];
-  const ig = document.getElementById('IG');
-  if (!ig) return;
-  if (!played.length) { ig.innerHTML = '<p class="nd">Speel meer wedstrijden voor inzichten.</p>'; return; }
-
-  if (setSt.length>=3) {
-    const worst = [...setSt].sort((a,b)=>a.pct-b.pct)[0];
-    const best  = [...setSt].sort((a,b)=>b.pct-a.pct)[0];
-    if (worst.pct<42 && worst.total>=3) ins.push({c:'neg',i:'📉',t:'Set '+worst.set+' is structureel zwak',p:'Slechts '+worst.pct+'% gewonnen ('+worst.total+'x). Gerichte training op dit moment loont.'});
-    if (best.pct>65 && best.total>=3)  ins.push({c:'pos',i:'💪',t:'Set '+best.set+' is jullie kracht',p:best.pct+'% gewonnen — gebruik dit mentale fundament als buffer voor zwakkere sets.'});
-    const tb = setSt.find(s=>s.set===5);
-    if (tb && tb.total>=2) ins.push({c:tb.pct>=50?'pos':'neg',i:'⚡',t:'Tie-break: '+tb.wins+'/'+tb.total+' gewonnen',p:tb.pct>=50?'Goed presteren onder druk.':'Tie-break strategie en mentale fitheid verdienen extra aandacht.'});
-  }
-  if (homeP.length>=3 && awayP.length>=3) {
-    const hp=homeW/homeP.length, ap=awayW/awayP.length;
-    if (hp-ap>0.3) ins.push({c:'neg',i:'✈️',t:'Moeite met uitwedstrijden',p:'Thuis '+Math.round(hp*100)+'% vs uit '+Math.round(ap*100)+'%. Warming-up routine voor uitwedstrijden kan helpen.'});
-    else if (ap-hp>0.2) ins.push({c:'pos',i:'🏟️',t:'Sterk op vreemde bodem',p:'Uit ('+Math.round(ap*100)+'%) beter dan thuis ('+Math.round(hp*100)+'%).'});
-  }
-  const res = played.map(m=>m.result);
-  let mxW=0,mxL=0,cW=0,cL=0;
-  res.forEach(r => { r==='W'?(cW++,cL=0,mxW=Math.max(mxW,cW)):(cL++,cW=0,mxL=Math.max(mxL,cL)); });
-  if (mxW>=4) ins.push({c:'pos',i:'🔥',t:'Winserie van '+mxW,p:mxW+' overwinningen op rij — uitstekend collectief momentum.'});
-  if (mxL>=3) ins.push({c:'neg',i:'❄️',t:'Verliesreeks van '+mxL,p:'Evaluatie na 2 verliezen op rij kan verdere reeks voorkomen.'});
-  const r5 = played.slice(-5); const r5w = r5.filter(m=>m.result==='W').length;
-  if (r5.length===5 && r5w>=4) ins.push({c:'pos',i:'📈',t:'Stijgende lijn',p:'Laatste 5 wedstrijden: '+r5w+'x gewonnen. Uitstekende vorm!'});
-  if (r5.length===5 && r5w<=1) ins.push({c:'neg',i:'📉',t:'Dalende lijn',p:'Slechts '+r5w+'/5 recentelijk gewonnen. Analyse loont.'});
-  const eff = maxPts ? Math.round(pts/maxPts*100) : 0;
-  if (eff>=70) ins.push({c:'pos',i:'🏆',t:'Hoge efficiëntie: '+eff+'%',p:pts+' van max. '+maxPts+' punten — bovengemiddeld seizoen.'});
-  else if (eff<35 && played.length>=5) ins.push({c:'warn',i:'📊',t:'Lage efficiëntie: '+eff+'%',p:'Focus op 3-2 overwinningen verbetert de score snel.'});
-  const tight = (sd['3-2']||0)+(sd['2-3']||0);
-  if (tight>=3) ins.push({c:'neu',i:'⚖️',t:tight+'× naar 5 sets',p:'Veel spannende 5-setters — moeite om vroeg te beslissen.'});
-  if (!ins.length) ins.push({c:'neu',i:'📋',t:'Meer data nodig',p:'Meer gespeelde wedstrijden geven betere patroonherkenning.'});
-
-  ig.innerHTML = ins.map(i =>
-    '<div class="ins '+i.c+' fade-up"><div class="ins-i">'+i.i+'</div><div><h4>'+i.t+'</h4><p>'+i.p+'</p></div></div>'
-  ).join('');
-}
 
 // ═══════════════════════════════════════════
 //  FAVORIETEN DROPDOWN
 // ═══════════════════════════════════════════
 function updateFavCount() {
-  const n = getFavTeams().length;
   const el = document.getElementById('favCount');
-  if (el) el.textContent = n;
+  if (el) el.textContent = getFavTeams().length;
   renderFavDD();
 }
 function renderFavDD() {
   const dd = document.getElementById('favDD');
   if (!dd) return;
   const favs = getFavTeams();
-  if (!favs.length) {
-    dd.innerHTML = '<div class="fav-empty">Nog geen favoriete teams.<br><span style="font-size:.78rem;color:var(--gray-400)">Klik op ★ bij een team in een vereniging.</span></div>';
-    return;
-  }
-  // Groepeer per vereniging
-  const byCode = {};
-  favs.forEach(t => { (byCode[t.code] = byCode[t.code]||[]).push(t); });
-  const keys = Object.keys(byCode).sort((a,b) => (CLUBS[a]?.name||a).localeCompare(CLUBS[b]?.name||b));
-  let html = '<div class="fav-dd-head">Favoriete teams ('+favs.length+')</div>';
-  keys.forEach(code => {
-    const cName = CLUBS[code]?.name || code;
-    html += '<div style="padding:8px 14px 4px;font-size:.7rem;color:var(--gray-400);font-family:var(--mono);background:var(--gray-50);border-bottom:1px solid var(--gray-100);font-weight:600">'+esc(cName)+' · '+esc(code)+'</div>';
-    byCode[code].forEach(t => {
-      TR[t.id] = t;
-      html += '<div class="fav-item" data-favtid-go="'+esc(t.id)+'">'+
-        '<div class="fav-item-ico">★</div>'+
-        '<div class="fav-item-info">'+
-          '<div class="fav-item-name">'+esc(t.name)+'</div>'+
-          '<div class="fav-item-meta">'+esc(typeLabel(t.type))+' '+t.nr+'</div>'+
-        '</div>'+
-        '<button class="fav-item-rm" data-rmfav="'+esc(t.id)+'" title="Verwijderen">✕</button>'+
-      '</div>';
-    });
+  if (!favs.length) { dd.innerHTML = '<div class="fav-empty">Nog geen favoriete teams.</div>'; return; }
+  let html = '<div class="fav-dd-head">Favoriete teams</div>';
+  favs.forEach(t => {
+    TR[t.id] = t;
+    html += '<div class="fav-item" data-favtid-go="'+esc(t.id)+'"><div class="fav-item-ico">★</div><div class="fav-item-info"><div class="fav-item-name">'+esc(t.name)+'</div><div class="fav-item-meta">'+esc(typeLabel(t.type))+'</div></div><button class="fav-item-rm" data-rmfav="'+esc(t.id)+'">✕</button></div>';
   });
   dd.innerHTML = html;
 }
@@ -1431,110 +1483,55 @@ function renderFavDD() {
 //  EVENT DELEGATION
 // ═══════════════════════════════════════════
 document.addEventListener('click', e => {
-  // Suggestion: club
   const siClub = e.target.closest('.si[data-club], .assoc-tile[data-club]');
-  if (siClub && !e.target.closest('[data-rmassoc]')) {
+  if (siClub && !e.target.closest('[data-rmassoc]') && !e.target.closest('input[type="checkbox"]')) {
     SB.classList.remove('open');
-    const SBH = document.getElementById('SBH'); if (SBH) SBH.classList.remove('open');
     showAssocPage(siClub.dataset.club, siClub.dataset.name || '');
     return;
   }
+  
+  const favGo = e.target.closest('[data-tid-go]');
+  if (favGo && !e.target.closest('input[type="checkbox"]')) {
+     const team = TR[favGo.dataset.tidGo] || getFavTeams().find(t=>t.id===favGo.dataset.tidGo);
+     if (team) loadTeam(team);
+     return;
+  }
 
-  // Verwijder opgeslagen vereniging op home
   const rmAssoc = e.target.closest('[data-rmassoc]');
-  if (rmAssoc) {
-    e.stopPropagation();
-    e.preventDefault();
-    removeSavedAssoc(rmAssoc.dataset.rmassoc);
-    renderHome();
-    return;
-  }
+  if (rmAssoc) { e.stopPropagation(); removeSavedAssoc(rmAssoc.dataset.rmassoc); renderHome(); return; }
 
-  // Klik op team in vereniging-pagina (left col)
   const teamLi = e.target.closest('.team-li[data-tid]');
-  if (teamLi && !e.target.closest('.fav-star')) {
-    const team = TR[teamLi.dataset.tid];
-    if (team) loadTeam(team);
-    return;
-  }
+  if (teamLi) { const team = TR[teamLi.dataset.tid]; if (team) loadTeam(team); return; }
 
-  // Toggle favorite-star op team-li
-  const favStar = e.target.closest('.fav-star[data-favtid]');
-  if (favStar) {
-    e.stopPropagation();
-    const tid = favStar.dataset.favtid;
-    const team = TR[tid] || getFavTeams().find(t=>t.id===tid);
-    if (team) {
-      const nowFav = toggleFavTeam(team);
-      favStar.classList.toggle('on', nowFav);
-      favStar.title = nowFav ? 'Verwijder uit favorieten' : 'Voeg toe aan favorieten';
-    }
-    return;
-  }
+  if (e.target.closest('[data-action="toggle-fav-dd"]')) { e.stopPropagation(); document.getElementById('favDD').classList.toggle('open'); return; }
 
-  // Favorieten dropdown toggle
-  if (e.target.closest('[data-action="toggle-fav-dd"]')) {
-    e.stopPropagation();
-    const dd = document.getElementById('favDD');
-    if (!dd.classList.contains('open')) renderFavDD();
-    dd.classList.toggle('open');
-    return;
-  }
+  const ddFavGo = e.target.closest('[data-favtid-go]');
+  if (ddFavGo && !e.target.closest('[data-rmfav]')) { document.getElementById('favDD').classList.remove('open'); const team = TR[ddFavGo.dataset.favtidGo]; if (team) loadTeam(team); return; }
 
-  // Open team vanuit favorieten-dropdown
-  const favGo = e.target.closest('[data-favtid-go]');
-  if (favGo && !e.target.closest('[data-rmfav]')) {
-    document.getElementById('favDD').classList.remove('open');
-    const tid = favGo.dataset.favtidGo;
-    const team = TR[tid] || getFavTeams().find(t=>t.id===tid);
-    if (team) loadTeam(team);
-    return;
-  }
-
-  // Verwijder team uit favorieten
   const rmFav = e.target.closest('[data-rmfav]');
-  if (rmFav) {
-    e.stopPropagation();
-    e.preventDefault();
-    removeFavTeam(rmFav.dataset.rmfav);
-    renderFavDD();
-    return;
-  }
+  if (rmFav) { e.stopPropagation(); removeFavTeam(rmFav.dataset.rmfav); renderFavDD(); renderHome(); return; }
 
-  // Tabs (op team-pagina)
   const tab = e.target.closest('.tab[data-pane]');
   if (tab) {
-    tab.closest('.tabs').querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
-    tab.classList.add('on');
+    tab.closest('.tabs').querySelectorAll('.tab').forEach(b=>b.classList.remove('on')); tab.classList.add('on');
     document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
-    const pane = document.getElementById(tab.dataset.pane);
-    if (pane) pane.classList.add('on');
-    return;
+    const pane = document.getElementById(tab.dataset.pane); if (pane) pane.classList.add('on'); return;
   }
 
-  // data-action handlers
   const act = e.target.closest('[data-action]');
   if (act) {
     const a = act.dataset.action;
-    if (a === 'home')              { renderHome(); return; }
-    if (a === 'refresh-assoc')     { refreshAssoc(act.dataset.code, act.dataset.name); return; }
-    if (a === 'refresh-team')      { refreshTeam(act.dataset.tid); return; }
-    if (a === 'back-to-assoc')     { showAssocPage(act.dataset.code, act.dataset.name); return; }
+    if (a === 'home')          { renderHome(); return; }
+    if (a === 'refresh-assoc') { refreshAssoc(act.dataset.code, act.dataset.name); return; }
+    if (a === 'refresh-team')  { refreshTeam(act.dataset.tid); return; }
+    if (a === 'back-to-assoc') { showAssocPage(act.dataset.code, act.dataset.name); return; }
     if (a === 'toggle-save-assoc') {
-      const code = act.dataset.code;
-      const name = act.dataset.name;
-      const nowSaved = toggleSavedAssoc(code, name);
-      act.classList.toggle('saved', nowSaved);
-      act.textContent = nowSaved ? '✓ Opgeslagen' : '+ Opslaan';
-      return;
+      const nowSaved = toggleSavedAssoc(act.dataset.code, act.dataset.name);
+      act.classList.toggle('saved', nowSaved); act.textContent = nowSaved ? '✓ Opgeslagen' : '+ Opslaan'; return;
     }
     if (a === 'toggle-fav-team') {
       const team = TR[act.dataset.tid] || getFavTeams().find(t=>t.id===act.dataset.tid);
-      if (team) {
-        const nowFav = toggleFavTeam(team);
-        act.classList.toggle('saved', nowFav);
-        act.textContent = nowFav ? '★ Favoriet' : '☆ Favoriet';
-      }
+      if (team) { const nowFav = toggleFavTeam(team); act.classList.toggle('saved', nowFav); act.textContent = nowFav ? '★ Favoriet' : '☆ Favoriet'; }
       return;
     }
   }
@@ -1544,22 +1541,8 @@ document.addEventListener('click', e => {
 //  STARTUP
 // ═══════════════════════════════════════════
 (function() {
-  // Wis alleen oude legacy keys
-  try {
-    ['vs_teams_v1','vs_assocs_v1','ss_v2','ss_v1','ss_teams_v1'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
-    Object.keys(localStorage).filter(k => k.startsWith('vs_c3_') || k.startsWith('vs_c2_') || k.startsWith('ssc_'))
-      .forEach(k => { try { localStorage.removeItem(k); } catch {} });
-  } catch {}
-
-  // Cache TR met opgeslagen favorieten
   getFavTeams().forEach(t => { TR[t.id] = t; });
-
-  updateFavCount();
-  renderHome();
-  loadClubsDB().then(() => {
-    // Re-render home als zoekfeature pas nu beschikbaar wordt
-    if (!getSavedAssocs().length) renderHome();
-  });
+  updateFavCount(); renderHome(); loadClubsDB();
 })();
 </script>
 </body>
