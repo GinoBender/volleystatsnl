@@ -738,17 +738,30 @@ function pouleFromDB(channelTitle, teamName) {
   // ── Pass 1: teamnaam-match ──
   const tn = (teamName || '').toLowerCase().trim();
   if (tn) {
-    const m = tn.match(/\b(hs|ds|mc|ms|ja|jb|ma|mb|da|db|n\d+|u\d+)\s+(\d+)\s*$/i);
+    // Nummer optioneel: senioren "HS 2", jeugd "MA" (zonder nummer)
+    const m = tn.match(/\b(hs|ds|mc|ms|ja|jb|ma|mb|da|db|n\d+|u\d+)(\s+\d+)?\s*$/i);
     if (m) {
-      const typeNr    = m[1].toLowerCase() + ' ' + m[2];
-      const clubBase  = tn.slice(0, m.index).trim();
-      const clubWords = clubBase.split(/\W+/).filter(w => w.length >= 2);
+      const typeNr   = (m[1].toLowerCase() + (m[2] ? m[2].trim() : '')).trim();
+      const clubBase = tn.slice(0, m.index).trim();  // bijv. "de boemel"
+      // Zoek eerst op exacte volledige teamnaam (meest precies)
+      const fullName = clubBase + ' ' + typeNr;       // "de boemel hs 2" of "flash nieuwleusen ma"
+      for (const entry of POULE_DB) {
+        const teams = (entry.teams || []).map(t => t.toLowerCase().replace(/^\d+\.\s*/, ''));
+        if (teams.length > 1 || (teams[0] && !teams[0].startsWith('stand '))) {
+          if (teams.some(t => t === fullName || t.endsWith(' ' + fullName) || t.includes(fullName))) {
+            console.log('[pouleFromDB] Pass1 exact:', entry.path);
+            return { path: entry.path };
+          }
+        }
+      }
+      // Fallback: clubwoorden min 4 tekens (voorkomt false positives via korte woorden als "de")
+      const clubWords = clubBase.split(/\W+/).filter(w => w.length >= 4);
       if (clubWords.length) {
         for (const entry of POULE_DB) {
           const teams = (entry.teams || []).map(t => t.toLowerCase().replace(/^\d+\.\s*/, ''));
           if (teams.length > 1 || (teams[0] && !teams[0].startsWith('stand '))) {
             if (teams.some(t => t.includes(typeNr) && clubWords.some(w => t.includes(w)))) {
-              console.log('[pouleFromDB] Pass1:', entry.path);
+              console.log('[pouleFromDB] Pass1 fuzzy:', entry.path);
               return { path: entry.path };
             }
           }
