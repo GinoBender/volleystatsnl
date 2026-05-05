@@ -427,14 +427,15 @@ function listSeasonSnapshots(teamId) {
   return results.sort((a, b) => b.season.localeCompare(a.season));
 }
 
-/// Proxy: eigen backend (/api/rss) als we via Flask draaien, anders CORS-fallbacks
-const _hasBackend = location.port === '5000' ||
-  (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1' && location.protocol !== 'file:');
+// Proxy: eigen backend (/api/rss) alleen als we op poort 5000 draaien (Flask lokaal of VPS).
+// Op GitHub Pages en alle andere hosts: gebruik publieke CORS-proxies.
+const _hasBackend = location.port === '5000';
 const PROXY_CHAIN = _hasBackend
   ? [{ url: u => '/api/rss?url=' + encodeURIComponent(u), raw: true }]
   : [
       { url: u => 'https://corsproxy.io/?' + encodeURIComponent(u), raw: true },
       { url: u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u), raw: false },
+      { url: u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u), raw: true },
     ];
 
 // Generatie-counter
