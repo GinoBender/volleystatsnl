@@ -269,6 +269,28 @@ main{max-width:1180px;margin:0 auto;padding:36px 24px 80px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .fade-up{animation:fadeUp .3s ease both}
 
+/* ── KAMPIOEN BANNER ── */
+.champion-banner{
+  background:linear-gradient(135deg,#fef9c3 0%,#fef08a 40%,#fde68a 100%);
+  border:2px solid var(--gold);
+  border-radius:12px;
+  padding:14px 20px;
+  margin-bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  font-size:.95rem;
+  font-weight:600;
+  color:#78350f;
+  box-shadow:0 4px 16px rgba(234,179,8,.2);
+}
+.champion-banner .cb-icon{font-size:2rem;flex-shrink:0}
+.champion-banner .cb-body{flex:1}
+.champion-banner .cb-title{font-size:1.05rem;font-weight:800;letter-spacing:-.3px;margin-bottom:2px;color:#92400e}
+.champion-banner .cb-detail{font-size:.82rem;font-weight:500;color:#a16207;line-height:1.4}
+.champion-banner .cb-pts{font-size:1.4rem;font-weight:800;font-family:var(--mono);color:var(--gold);flex-shrink:0;text-align:right}
+.champion-banner .cb-pts small{display:block;font-size:.65rem;font-weight:600;color:#a16207;font-family:var(--sans);letter-spacing:.5px;text-transform:uppercase}
+
 /* ── RESPONSIVE ── */
 @media(max-width:920px){
   .assoc-grid{grid-template-columns:1fr;gap:12px}
@@ -405,12 +427,15 @@ function listSeasonSnapshots(teamId) {
   return results.sort((a, b) => b.season.localeCompare(a.season));
 }
 
-// Proxy-keten: probeer op volgorde, stop bij eerste succes
-const PROXY_CHAIN = [
-  { url: u => 'https://corsproxy.io/?' + encodeURIComponent(u), raw: true },
-  { url: u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u), raw: false },
-  { url: u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u), raw: true },
-];
+/// Proxy: eigen backend (/api/rss) als we via Flask draaien, anders CORS-fallbacks
+const _hasBackend = location.port === '5000' ||
+  (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1' && location.protocol !== 'file:');
+const PROXY_CHAIN = _hasBackend
+  ? [{ url: u => '/api/rss?url=' + encodeURIComponent(u), raw: true }]
+  : [
+      { url: u => 'https://corsproxy.io/?' + encodeURIComponent(u), raw: true },
+      { url: u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u), raw: false },
+    ];
 
 // Generatie-counter
 let gen = 0;
@@ -490,51 +515,94 @@ async function loadClubsDB() {
 function teamUrl(code,type,nr)      { return EXPORT+'/team/'+code.toUpperCase()+'/'+type+'/'+nr+'/resultaten.rss'; }
 function programmaUrl(code,type,nr) { return EXPORT+'/team/'+code.toUpperCase()+'/'+type+'/'+nr+'/programma.rss'; }
 function verUrl(code)               { return EXPORT+'/vereniging/'+code.toUpperCase()+'/resultaten.rss'; }
-function standUrl(regio,poule)      { return EXPORT+'/poule/'+regio+'/'+poule+'/stand.rss'; }
+function standUrl(path)             { return EXPORT+'/poule/'+path+'/stand.rss'; }
 function cacheKey(code,type,nr)     { return code.toUpperCase()+'__'+type+'__'+nr; }
 function teamId(code,type,nr)       { return (code+'_'+type+'_'+nr).toLowerCase().replace(/[^a-z0-9_]/g,'_'); }
 
-// Extraheer regio + poule-code uit een Nevobo permalink-URL
-// bv. https://api.nevobo.nl/permalink/regio-west/jaarcompetitie.../poule/regio-west-d2b-9
-// → { regio: 'regio-west', poule: 'D2B' }
+// Bekende Nevobo regio-waarden (volgorde: langste eerst om greedy matching te vermijden)
+const NEVOBO_REGIOS = [
+  'nationale-competitie', 'kampioenschappen',
+  'regio-noord', 'regio-oost', 'regio-zuid', 'regio-west'
+];
+
+// Extraheer regio + poule-code uit een Nevobo of volleybal.nl URL.
+// bv. https://www.volleybal.nl/.../nationale-competitie-2dh-11 → { regio:'nationale-competitie', poule:'2dh' }
+// Extraheer het volledige poule-pad (3 segmenten) uit een Nevobo- of volleybal.nl-URL.
+// Resultaat: { path: 'regio/competition-slug/poule-slug' } of null
+// bv. 'https://api.nevobo.nl/export/poule/nationale-competitie/competitie-seniorencompetitie-5/nationale-competitie-2dh-11/stand.rss'
+//   → { path: 'nationale-competitie/competitie-seniorencompetitie-5/nationale-competitie-2dh-11' }
+// bv. 'https://www.volleybal.nl/competitie/poule/nationale-competitie/competitie-seniorencompetitie-5/nationale-competitie-2dh-11'
+//   → { path: 'nationale-competitie/competitie-seniorencompetitie-5/nationale-competitie-2dh-11' }
 function pouleFromLink(link) {
   if (!link) return null;
-  const m = link.match(/\/poule\/([a-z-]+)-([a-z0-9]+)-\d+\/?$/i);
-  if (!m) return null;
-  const regio = m[1].replace(/-([a-z0-9]+)$/, '') + '-' + m[1].replace(/.*-([a-z0-9]+)$/, '$1'); // haal regio uit prefix
-  // eenvoudiger: alles voor de laatste segment-groep is regio
-  const parts = link.match(/\/permalink\/([^/]+)\/[^/]+\/poule\/([^/]+)/);
-  if (!parts) return null;
-  const fullPoule = parts[2]; // bv. "regio-west-d2b-9"
-  const regioPart = parts[1]; // bv. "regio-west"
-  // poulecode is het deel na de regio en voor het laatste getal
-  const pouleCode = fullPoule.replace(regioPart + '-', '').replace(/-\d+$/, '').toUpperCase();
-  return { regio: regioPart, poule: pouleCode };
+  const SEG = '[a-z][a-z0-9-]*'; // URL-segment (begint met letter)
+
+  // Patroon 1: api.nevobo.nl/export/poule/{regio}/{comp}/{poule}/...
+  let m = link.match(new RegExp('/export/poule/((' + SEG + ')/(' + SEG + ')/(' + SEG + '))/'));
+  if (m && NEVOBO_REGIOS.includes(m[2])) return { path: m[1] };
+
+  // Patroon 2: volleybal.nl/competitie/{type}/{regio}/{comp}/{poule}
+  m = link.match(new RegExp('/competitie/[a-z]+/((' + SEG + ')/(' + SEG + ')/(' + SEG + '))(?:[/?#]|$)'));
+  if (m && NEVOBO_REGIOS.includes(m[2])) return { path: m[1] };
+
+  // Patroon 3: api.nevobo.nl/export/poule/{regio}/{poule}/... (2-segment, oud formaat)
+  m = link.match(new RegExp('/export/poule/((' + SEG + ')/(' + SEG + '))/'));
+  if (m && NEVOBO_REGIOS.includes(m[2])) return { path: m[1] };
+
+  return null;
 }
 
-// Parse stand-RSS CDATA: "1. Teamnaam DS 1, wedstr: 14, punten: 38"
+// Parse stand-RSS. Het Nevobo-formaat is niet gedocumenteerd, dus we proberen meerdere patronen.
 function parseStand(xml) {
   const doc = new DOMParser().parseFromString(xml, 'text/xml');
   if (doc.querySelector('parsererror')) return [];
   const rows = [];
-  doc.querySelectorAll('item').forEach(item => {
-    const raw = (item.querySelector('description')?.textContent || '').replace(/<[^>]+>/g, ' ');
-    // Elke regel: "1. Set-Up DS 2, wedstr: 14, punten: 38"
-    const lines = raw.split(/\n|\r|(?=\d+\.\s)/g).filter(l => /^\d+\./.test(l.trim()));
-    lines.forEach(line => {
-      const m = line.trim().match(/^(\d+)\.\s+(.+?),\s*wedstr:\s*(\d+),\s*punten:\s*(\d+)/);
-      if (m) rows.push({ pos: +m[1], name: m[2].trim(), wedstr: +m[3], punten: +m[4] });
-    });
-  });
-  // Alternatief: CDATA als één blok in description
-  if (!rows.length) {
-    const allDesc = [...doc.querySelectorAll('item description')].map(d => d.textContent).join('\n');
-    const re = /(\d+)\.\s+(.+?),\s*wedstr:\s*(\d+),\s*punten:\s*(\d+)/g;
+
+  // Helper: extraheer één rij uit een stuk tekst
+  function tryExtract(text) {
+    if (!text) return;
+    const clean = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+    // Formaat A: "1. Teamnaam, wedstr: 14, punten: 38"  (komma-gescheiden)
+    const reA = /(\d+)\.\s+(.+?),\s*wedstr(?:ijden)?:\s*(\d+),\s*punten:\s*(\d+)/gi;
+    // Formaat B: "1. Teamnaam | 14 | 38 punten"
+    const reB = /(\d+)\.\s+(.+?)\s*\|\s*(\d+)\s*\|\s*(\d+)/g;
+    // Formaat C: "1 Teamnaam 14 38" (tabel-achtig, whitespace-gescheiden)
+    const reC = /^(\d+)\s+(.+?)\s+(\d+)\s+(\d+)\s*$/mg;
+    // Formaat D: "<td>1</td><td>Teamnaam</td>...<td>38</td>" (HTML in CDATA)
+    // → al afgevangen door clean (HTML verwijderd)
     let m;
-    while ((m = re.exec(allDesc)) !== null) {
-      rows.push({ pos: +m[1], name: m[2].trim(), wedstr: +m[3], punten: +m[4] });
+    for (const re of [reA, reB, reC]) {
+      re.lastIndex = 0;
+      while ((m = re.exec(clean)) !== null) {
+        const pos = +m[1], name = m[2].trim(), wedstr = +m[3], punten = +m[4];
+        if (pos > 0 && name && !rows.find(r => r.pos === pos)) {
+          rows.push({ pos, name, wedstr, punten });
+        }
+      }
+      if (rows.length) return;
     }
   }
+
+  // Strategie 1: één item per team (meest waarschijnlijk)
+  doc.querySelectorAll('item').forEach(item => {
+    const title = item.querySelector('title')?.textContent || '';
+    const desc  = item.querySelector('description')?.textContent || '';
+    // Titel-formaat: "1. De Boemel HS 1" + desc voor stats → combineer
+    tryExtract(title + ' ' + desc);
+  });
+
+  // Strategie 2: alle data in één description-blok
+  if (!rows.length) {
+    const allText = [...doc.querySelectorAll('item description')].map(d => d.textContent).join('\n');
+    tryExtract(allText);
+  }
+
+  // Strategie 3: channel description
+  if (!rows.length) {
+    const chanDesc = doc.querySelector('channel > description')?.textContent || '';
+    tryExtract(chanDesc);
+  }
+
   return rows.sort((a,b) => a.pos - b.pos);
 }
 
@@ -567,6 +635,168 @@ function parseRSS(xml) {
   const doc = new DOMParser().parseFromString(xml,'text/xml');
   if (doc.querySelector('parsererror')) throw new Error('Ongeldige RSS');
   return [...doc.querySelectorAll('item')].map(parseItem);
+}
+
+// Extraheer channel-level metadata (link + title) uit een RSS
+function parseRSSChannelMeta(xml) {
+  const result = { link: '', title: '' };
+  try {
+    const doc = new DOMParser().parseFromString(xml, 'text/xml');
+    if (doc.querySelector('parseerror')) return result;
+    const channel = doc.querySelector('channel');
+    if (!channel) return result;
+    for (const node of channel.childNodes) {
+      if (node.nodeName === 'link')  result.link  = (node.textContent || '').trim();
+      if (node.nodeName === 'title') result.title = (node.textContent || '').trim();
+    }
+  } catch {}
+  return result;
+}
+
+// Sleutelwoorden in channel-title → poule-URL params
+// Poule-code patroon (nationaal): {volgnr}{divisieletter}{geslacht} → bv. 2dh = Tweede Divisie D Heren
+// Formaat: [ zoekterm (lowercase), regio, poule ]
+const TITLE_TO_POULE = [
+  // ── Heren nationaal ──
+  ['heren eredivisie',       'nationale-competitie', '1h'],   // Eredivisie Heren = 1h (aanname)
+  ['heren 1e divisie',       'nationale-competitie', '1h'],
+  ['heren eerste divisie',   'nationale-competitie', '1h'],
+  ['heren 2e divisie a',     'nationale-competitie', '2ah'],
+  ['heren tweede divisie a', 'nationale-competitie', '2ah'],
+  ['heren 2e divisie b',     'nationale-competitie', '2bh'],
+  ['heren tweede divisie b', 'nationale-competitie', '2bh'],
+  ['heren 2e divisie c',     'nationale-competitie', '2ch'],
+  ['heren tweede divisie c', 'nationale-competitie', '2ch'],
+  ['heren 2e divisie d',     'nationale-competitie', '2dh'],  // ✓ bevestigd
+  ['heren tweede divisie d', 'nationale-competitie', '2dh'],  // ✓ bevestigd
+  ['heren 2e divisie e',     'nationale-competitie', '2eh'],
+  ['heren tweede divisie e', 'nationale-competitie', '2eh'],
+  ['heren 2e divisie f',     'nationale-competitie', '2fh'],
+  ['heren tweede divisie f', 'nationale-competitie', '2fh'],
+  ['heren 3e divisie',       'nationale-competitie', '3h'],
+  ['heren derde divisie',    'nationale-competitie', '3h'],
+  // ── Dames nationaal ──
+  ['dames eredivisie',       'nationale-competitie', '1d'],
+  ['dames 1e divisie',       'nationale-competitie', '1d'],
+  ['dames eerste divisie',   'nationale-competitie', '1d'],
+  ['dames 2e divisie a',     'nationale-competitie', '2ad'],
+  ['dames tweede divisie a', 'nationale-competitie', '2ad'],
+  ['dames 2e divisie b',     'nationale-competitie', '2bd'],
+  ['dames tweede divisie b', 'nationale-competitie', '2bd'],
+  ['dames 2e divisie c',     'nationale-competitie', '2cd'],
+  ['dames tweede divisie c', 'nationale-competitie', '2cd'],
+  ['dames 2e divisie d',     'nationale-competitie', '2dd'],
+  ['dames tweede divisie d', 'nationale-competitie', '2dd'],
+  ['dames 2e divisie e',     'nationale-competitie', '2ed'],
+  ['dames tweede divisie e', 'nationale-competitie', '2ed'],
+  ['dames 3e divisie',       'nationale-competitie', '3d'],
+  ['dames derde divisie',    'nationale-competitie', '3d'],
+  // Regio-competities: uitbreiden zodra channel-titles bekend zijn
+];
+
+// ── Dynamische poule-database (gegenereerd door scraper_poules.py) ──────────
+// Wordt asynchroon geladen vanuit poule_db.json (naast index.html op GitHub).
+// Formaat: [{ path, title, teams }]
+// Zolang leeg valt de code terug op TITLE_TO_POULE en pouleFromLink.
+let POULE_DB = [];
+
+// Zoek in POULE_DB de juiste poule voor een team.
+//
+// Pass 1 – Teamnaam-match (werkt voor entries met echte teamnamen):
+//   "De Boemel HS 2" → zoek entry waar een team "de boemel hs 2" bevat.
+//   Clubwoorden min 2 tekens (zodat "VC", "ODS" etc ook matchen).
+//
+// Pass 2 – channelTitle-normalisatie (fallback voor Stand-only entries):
+//   Normaliseer RSS channel title ("Competitie Heren 3e Klasse A Regio Noord")
+//   en vergelijk met genormaliseerde Stand-titel ("Heren 3e Klasse A Regio Noord").
+//   Bij exact 1 match → gebruik die poule.
+
+function _normTitle(s) {
+  if (!s) return '';
+  s = s.toLowerCase();
+  for (const p of ['rss feed ', 'stand ', 'competitie ', 'wedstrijdprogramma ']) {
+    if (s.startsWith(p)) { s = s.slice(p.length); break; }
+  }
+  s = s.replace(/\s+\d+e\s+ronde\b/g, '');  // strip "12e ronde"
+  s = s.replace(/\bpoule\s+\d+\b/g, '');     // strip "poule 4"
+  s = s.replace(/\s+\d+\s*$/, '');            // strip trailing getal
+  return s.trim();
+}
+
+// Normalisatie-cache (herbouw als POULE_DB verandert)
+let _POULE_DB_NORM = null;
+function _getPouleNorm() {
+  if (_POULE_DB_NORM && _POULE_DB_NORM.length === POULE_DB.length) return _POULE_DB_NORM;
+  _POULE_DB_NORM = POULE_DB.map(e => ({ e, n: _normTitle((e.teams && e.teams[0]) || '') }));
+  return _POULE_DB_NORM;
+}
+
+function pouleFromDB(channelTitle, teamName) {
+  if (!POULE_DB.length) return null;
+
+  // ── Pass 1: teamnaam-match ──
+  const tn = (teamName || '').toLowerCase().trim();
+  if (tn) {
+    const m = tn.match(/\b(hs|ds|mc|ms|ja|jb|ma|mb|da|db|n\d+|u\d+)\s+(\d+)\s*$/i);
+    if (m) {
+      const typeNr    = m[1].toLowerCase() + ' ' + m[2];
+      const clubBase  = tn.slice(0, m.index).trim();
+      const clubWords = clubBase.split(/\W+/).filter(w => w.length >= 2);
+      if (clubWords.length) {
+        for (const entry of POULE_DB) {
+          const teams = (entry.teams || []).map(t => t.toLowerCase().replace(/^\d+\.\s*/, ''));
+          if (teams.length > 1 || (teams[0] && !teams[0].startsWith('stand '))) {
+            if (teams.some(t => t.includes(typeNr) && clubWords.some(w => t.includes(w)))) {
+              console.log('[pouleFromDB] Pass1:', entry.path);
+              return { path: entry.path };
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ── Pass 2: channelTitle-normalisatie (voor Stand-only entries) ──
+  if (channelTitle) {
+    const normInput = _normTitle(channelTitle);
+    if (normInput) {
+      const hits = _getPouleNorm().filter(x => x.n === normInput);
+      if (hits.length === 1) {
+        console.log('[pouleFromDB] Pass2 exact:', hits[0].e.path);
+        return { path: hits[0].e.path };
+      }
+    }
+  }
+
+  return null;
+}
+
+function pouleFromTitle(title) {
+  if (!title) return null;
+  const tl = title.toLowerCase();
+  for (const [keyword, regio, poule] of TITLE_TO_POULE) {
+    // Geeft een 2-segment pad terug (regio/poule); werkt alleen als de API
+    // ook de verkorte URL ondersteunt (zonder competition-slug).
+    if (tl.includes(keyword)) return { path: regio + '/' + poule };
+  }
+  return null;
+}
+
+// Handmatige poule-config per team (localStorage)
+// Nieuw formaat: { path: 'regio/competition/poule' }
+// Oud formaat (backwards compat): { regio, poule } → wordt omgezet naar { path: regio+'/'+poule }
+const POULE_CFG_PFX = 'vs_poule_cfg__';
+function getPouleConfig(teamId) {
+  try {
+    const raw = JSON.parse(localStorage.getItem(POULE_CFG_PFX + teamId));
+    if (!raw) return null;
+    if (raw.path) return raw;                        // nieuw formaat
+    if (raw.regio && raw.poule) return { path: raw.regio + '/' + raw.poule }; // migreer oud formaat
+    return null;
+  } catch { return null; }
+}
+function setPouleConfig(teamId, path) {
+  try { localStorage.setItem(POULE_CFG_PFX + teamId, JSON.stringify({ path })); } catch {}
 }
 
 function parseItem(item) {
@@ -989,19 +1219,17 @@ async function showAssocPage(code, name) {
     matchesHtml += '</tbody></table></div></div>';
 
     // Right col: Stats & Chart
-    const played = allItems.filter(m => m.scoreStr);
-    const wins = played.filter(m => { const [sw, sl] = m.scoreStr.split('-').map(Number); return sw > sl; }).length;
-    const losses = played.length - wins;
+    // Verrijk items met perspectief van de vereniging (thuis/uit + juiste winnaar)
+    const enrichedItems = enrichHA(allItems, clubName);
+    const played = enrichedItems.filter(m => m.result !== null);
+    const wins = played.filter(m => m.result === 'W').length;
+    const losses = played.filter(m => m.result === 'L').length;
     const winPct = played.length ? Math.round(wins / played.length * 100) : 0;
     const chartId = 'assoc-chart-' + C + '-' + Date.now();
 
     // Bereken extra stats voor inzichten
-    const pts3 = played.filter(m => { const [sw,sl]=m.scoreStr.split('-').map(Number); return sw>sl && sl<=1; }).length;
-    const pts2 = played.filter(m => { const [sw,sl]=m.scoreStr.split('-').map(Number); return sw>sl && sl===2; }).length;
-    const bestTeam = teams.reduce((best, t) => {
-      // we gebruiken de teamlijst zelf hier — data volgt uit snaps als die er zijn
-      return best;
-    }, null);
+    const pts3 = played.filter(m => m.result === 'W' && m.points === 3).length;
+    const pts2 = played.filter(m => m.result === 'W' && m.points === 2).length;
 
     // Inzichten voor de vereniging op basis van beschikbare data
     const assocInsights = [];
@@ -1034,11 +1262,17 @@ async function showAssocPage(code, name) {
           '<div style="font-size:.7rem;color:var(--gray-400);font-weight:600;margin-bottom:4px">WINPERCENTAGE</div>' +
           '<div style="font-size:1.4rem;font-weight:700;color:var(--blue)">'+winPct+'%</div>' +
         '</div>' +
+        '<div style="margin-top:10px;padding:6px 10px;background:var(--gray-50);border-radius:6px;font-size:.68rem;color:var(--gray-400);line-height:1.4;font-family:var(--mono)">📋 Gebaseerd op '+played.length+' wedstrijden uit de recente feed. Klik een team voor volledige statistieken.</div>' +
       '</div>'+
       insHtml+
     '</div>';
 
-    M.innerHTML = mkAssocBanner(C, clubName, false) + 
+    // Controleer of er een kampioen is (via gecachte stand-data van eerdere team-bezoeken)
+    const champ = findCachedChampion(teams);
+    const champHtml = champ ? renderChampionBanner(champ) : '';
+
+    M.innerHTML = mkAssocBanner(C, clubName, false) +
+      champHtml +
       '<div class="assoc-grid fade-up">' + teamsHtml + matchesHtml + statsHtml + '</div>';
 
     // Sla op in page cache voor instant terugnavigatie
@@ -1071,6 +1305,56 @@ function refreshAssoc(code, name) {
   delCached('teams__' + C);
   delete PAGE_CACHE.assoc[C];
   showAssocPage(code, name);
+}
+
+// Doorzoek gecachte stand-data (vanuit eerder bezochte team-pagina's) om te kijken
+// of een team van deze vereniging momenteel eerste staat met significante voorsprong.
+// Geeft { teamName, ptsDiff, standLength, pos1Name } terug of null.
+function findCachedChampion(teams) {
+  try {
+    const results = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const rawKey = localStorage.key(i);
+      if (!rawKey || !rawKey.startsWith(CPFX + 'stand__')) continue;
+      const cacheK = rawKey.replace(CPFX, '');
+      const standData = getCached(cacheK);
+      if (!standData || !standData.length) continue;
+      const leader = standData[0];
+      const second = standData[1];
+      if (!leader) continue;
+      const ptsDiff = second ? leader.punten - second.punten : leader.punten;
+      const maxWedstr = Math.max(...standData.map(r => r.wedstr));
+      // Alleen tonen als het seizoen ver genoeg is en de voorsprong significant
+      if (maxWedstr < 8 || ptsDiff < 3) continue;
+      // Kijk of een van onze teams de leider is
+      const myTeam = teams.find(t => {
+        const words = t.name.toLowerCase().split(/\s+/).filter(w => w.length > 2 && !/^\d+$/.test(w));
+        return words.some(w => leader.name.toLowerCase().includes(w));
+      });
+      if (myTeam) {
+        results.push({ team: myTeam, leader, ptsDiff, total: standData.length, wedstr: maxWedstr });
+      }
+    }
+    // Kies de meest dominante (grootste puntenverschil)
+    if (!results.length) return null;
+    return results.sort((a, b) => b.ptsDiff - a.ptsDiff)[0];
+  } catch { return null; }
+}
+
+function renderChampionBanner(champ) {
+  const confetti = ['🎊','🎉','🏆','🥇','⭐'];
+  const rnd = confetti[Math.floor(Math.random() * confetti.length)];
+  return '<div class="champion-banner fade-up">'+
+    '<div class="cb-icon">🏆</div>'+
+    '<div class="cb-body">'+
+      '<div class="cb-title">'+esc(champ.leader.name)+' is kampioen! '+rnd+'</div>'+
+      '<div class="cb-detail">'+
+        'Staat eerste in de poule met <strong>'+champ.ptsDiff+' punt'+(champ.ptsDiff!==1?'en':'')+' voorsprong</strong> op de nummer 2. '+
+        champ.wedstr+' wedstrijden gespeeld van de '+champ.total+' teams in de poule.'+
+      '</div>'+
+    '</div>'+
+    '<div class="cb-pts">'+champ.ptsDiff+'<small>pnt voorsp.</small></div>'+
+  '</div>';
 }
 
 function mkAssocBanner(code, name, loading) {
@@ -1113,6 +1397,13 @@ async function loadTeam(team) {
       const played  = resXml.status === 'fulfilled' ? parseRSS(resXml.value) : [];
       const planned = prgXml.status === 'fulfilled' ? parseRSS(prgXml.value) : [];
       if (!played.length && !planned.length) throw new Error('Geen data gevonden voor team.');
+      // Sla channel-metadata op voor poule-detectie
+      if (resXml.status === 'fulfilled') {
+        const meta = parseRSSChannelMeta(resXml.value);
+        team.channelLink  = meta.link;
+        team.channelTitle = meta.title;
+        TR[team.id] = team;
+      }
       const playedTs = new Set(played.filter(m=>m.ts).map(m=>m.ts));
       const futurePlanned = planned.filter(m => m.ts && !playedTs.has(m.ts));
       allMatches = [...played, ...futurePlanned];
@@ -1132,30 +1423,62 @@ async function loadTeam(team) {
     saveSeasonSnapshot(team.id, season, sMatches);
   });
 
-  // Extraheer poule-info uit de eerste wedstrijd-link voor de stand-feed
+  // Extraheer poule-info uit de eerste wedstrijd-link (als fallback voor stand-feed)
   const firstLink = allMatches.find(m => m.link)?.link || '';
-  const pouleInfo = pouleFromLink(firstLink);
 
   M.innerHTML = mkBanner(team, false) + '<div id="TC"></div>';
   renderTeam(allMatches, team, null);
+  // Grafieken direct renderen (ook bij eerste load, niet alleen vanuit page cache)
+  setTimeout(() => renderTeamCharts(allMatches, team), 50);
 
-  // Laad de stand asynchroon en render die apart in
+  // ── Stand laden via poule-URL ──
+  // Prioriteit: 1) handmatige config, 2) POULE_DB (scraper-output), 3) item-links,
+  //             4) channel-title tabel, 5) channel-link URL-parsing
+  const channelTitle = team.channelTitle || '';
+  const channelLink  = team.channelLink  || '';
+  // Probeer alle item-links (meer kans op volledig pad dan alleen de eerste)
+  const allLinks = allMatches.map(m => m.link).filter(Boolean);
+  const linkInfo = allLinks.reduce((found, lnk) => found || pouleFromLink(lnk), null);
+  const pouleInfo =
+    getPouleConfig(team.id)                     ||  // 1. handmatig opgeslagen
+    linkInfo                                    ||  // 2. uit wedstrijd-links (meest betrouwbaar)
+    pouleFromDB(channelTitle, team.name)        ||  // 3. scraper-database (title + teamnaam)
+    pouleFromTitle(channelTitle)                ||  // 4. vaste TITLE_TO_POULE tabel
+    pouleFromLink(channelLink);                     // 5. channel-link URL
+
+  console.log('[Stand] channel-title:', channelTitle || '(geen)');
+  console.log('[Stand] pouleInfo:', pouleInfo);
+
+  let standData = null;
   if (pouleInfo) {
-    const standCacheKey = 'stand__' + pouleInfo.regio + '__' + pouleInfo.poule;
-    let standData = getCached(standCacheKey);
+    const standCK  = 'stand__' + pouleInfo.path.replace(/\//g, '__');
+    const builtUrl = standUrl(pouleInfo.path);
+    console.log('[Stand] URL:', builtUrl);
+    standData = getCached(standCK);
     if (!standData) {
       try {
-        const standXml = await fetchRSS(standUrl(pouleInfo.regio, pouleInfo.poule));
+        const xml = await fetchRSS(builtUrl);
         if (myGen !== gen) return;
-        standData = parseStand(standXml);
-        if (standData.length) setCached(standCacheKey, standData);
-      } catch(e) { standData = null; }
+        const rows = parseStand(xml);
+        console.log('[Stand] Geparsed:', rows.length, 'rijen');
+        if (rows.length) { standData = rows; setCached(standCK, rows); }
+        else {
+          console.warn('[Stand] parseStand gaf 0 rijen. Eerste 500 tekens RSS:', xml.slice(0, 500));
+        }
+      } catch(e) { console.warn('[Stand] Fetch mislukt:', e.message); }
     }
-    if (myGen !== gen) return;
-    if (standData && standData.length) renderStand(standData, team.name);
   }
 
-  // Sla op in page cache na render
+  if (myGen !== gen) return;
+  const standEl = document.getElementById('stand-placeholder');
+  if (standData && standData.length) {
+    renderStand(standData, team.name);
+  } else {
+    // Toon configuratieformulier zodat gebruiker handmatig poule kan instellen
+    if (standEl) standEl.innerHTML = renderStandConfigForm(team, pouleInfo, channelTitle);
+  }
+
+  // Sla op in page cache NADAT stand is geladen (zodat stand ook gecached wordt)
   PAGE_CACHE.team[team.id] = { html: M.innerHTML, matches: allMatches };
 }
 
@@ -1163,6 +1486,18 @@ function refreshTeam(tid) {
   const team = TR[tid] || getFavTeams().find(t=>t.id===tid);
   if (!team) return;
   delCached(cacheKey(team.code, team.type, team.nr));
+  // Wis ook de gecachte stand-data voor dit team
+  const pouleCfg = getPouleConfig(tid);
+  if (pouleCfg?.path) delCached('stand__' + pouleCfg.path.replace(/\//g, '__'));
+  // Wis alle stand__-entries als vangnet (goedkoop, data wordt snel opnieuw geladen)
+  try {
+    const toDelete = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(CPFX + 'stand__')) toDelete.push(k.replace(CPFX, ''));
+    }
+    toDelete.forEach(k => delCached(k));
+  } catch {}
   delete PAGE_CACHE.team[tid];
   loadTeam(team);
 }
@@ -1188,9 +1523,18 @@ function renderStand(standData, teamName) {
   let html = '';
 
   if (isChampion) {
-    html += `<div class="champion-banner fade-up">🏆 Kampioen! <span>${esc(myRow.name)}</span> staat eerste met <strong>${ptsDiff} punt${ptsDiff!==1?'en':''} voorsprong</strong>.</div>`;
+    html += '<div class="champion-banner fade-up">'+
+      '<div class="cb-icon">🏆</div>'+
+      '<div class="cb-body">'+
+        '<div class="cb-title">Kampioen! 🎉</div>'+
+        '<div class="cb-detail">'+esc(myRow.name)+' staat <strong>eerste</strong> met <strong>'+ptsDiff+' punt'+(ptsDiff!==1?'en':'')+' voorsprong</strong> op de nummer 2. Indrukwekkend seizoen!</div>'+
+      '</div>'+
+      '<div class="cb-pts">'+ptsDiff+'<small>pnt voorsp.</small></div>'+
+    '</div>';
   } else if (myPos === 1 && !isChampion) {
-    html += `<div style="background:var(--yellow-lt);border:1px solid var(--gold);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;font-size:.85rem;color:var(--yellow);font-weight:600;">🥇 Koploper! ${ptsDiff > 0 ? ptsDiff+' punt'+(ptsDiff!==1?'en':'')+' voorsprong.' : ''}</div>`;
+    html += '<div style="background:var(--yellow-lt);border:1px solid var(--gold);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;font-size:.85rem;color:var(--yellow);font-weight:600">'+
+      '🥇 Koploper! '+(ptsDiff > 0 ? ptsDiff+' punt'+(ptsDiff!==1?'en':'')+' voorsprong op de nummer 2.' : '')+
+    '</div>';
   }
 
   html += '<div class="tcard"><table><thead><tr><th>#</th><th>Team</th><th>Gespeeld</th><th>Punten</th></tr></thead><tbody>';
@@ -1206,15 +1550,6 @@ function renderStand(standData, teamName) {
   html += '</tbody></table></div>';
 
   el.innerHTML = html;
-
-  // Update page cache na stand-inject
-  const teamIds = Object.keys(PAGE_CACHE.team);
-  teamIds.forEach(tid => {
-    if (PAGE_CACHE.team[tid]) {
-      const M = document.getElementById('M');
-      if (M) PAGE_CACHE.team[tid].html = M.innerHTML;
-    }
-  });
 }
 
 // Herteken Chart.js grafieken na herstel vanuit page cache
@@ -1309,6 +1644,8 @@ function renderTeam(matches, team) {
       '<button class="tab on" data-pane="tr">Uitslagen</button>'+
       '<button class="tab" data-pane="tp">Programma</button>'+
       '<button class="tab" data-pane="topp">Tegenstanders</button>'+
+      '<button class="tab" data-pane="tstand">Stand</button>'+
+      '<button class="tab" data-pane="tstat">Statistieken</button>'+
       (prevSnap ? '<button class="tab" data-pane="tprev">Vorig seizoen <span style="font-size:.65rem;opacity:.6">'+prevSnap.season+'</span></button>' : '')+
     '</div></div>'+
 
@@ -1327,6 +1664,27 @@ function renderTeam(matches, team) {
 
     '<div id="topp" class="pane">'+
       renderOpponentTab(oppRows, future, team)+
+    '</div>'+
+
+    '<div id="tstand" class="pane">'+
+      '<div id="stand-placeholder"><div class="nd">⏳ Stand wordt geladen…</div></div>'+
+    '</div>'+
+
+    '<div id="tstat" class="pane">'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:4px 0">'+
+        '<div class="tcard" style="padding:16px">'+
+          '<div style="font-size:.72rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Winratio</div>'+
+          '<div style="height:180px;position:relative"><canvas id="chart-winratio-'+team.id+'"></canvas></div>'+
+          '<div style="display:flex;gap:12px;justify-content:center;margin-top:10px;font-size:.78rem">'+
+            '<span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#16a34a;display:inline-block"></span>Gewonnen</span>'+
+            '<span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#dc2626;display:inline-block"></span>Verloren</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="tcard" style="padding:16px">'+
+          '<div style="font-size:.72rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Punten (laatste 10)</div>'+
+          '<div style="height:180px;position:relative"><canvas id="chart-points-'+team.id+'"></canvas></div>'+
+        '</div>'+
+      '</div>'+
     '</div>'+
 
     (prevSnap ? '<div id="tprev" class="pane">'+renderPrevSeasonTab(prevSnap, team)+'</div>' : '');
@@ -1398,7 +1756,7 @@ function renderOpponentTab(oppRows, future, team) {
   // Komende tegenstanders koppelen aan historische data
   const nextOpps = new Set(future.map(m => m.thuis === team.name ? m.uit : m.thuis).filter(Boolean));
 
-  let html = '<div class="tcard" style="margin-bottom:14px"><table><thead><tr><th>Tegenstander</th><th>G</th><th>W</th><th>V</th><th>Pnt</th><th>Status</th></tr></thead><tbody>';
+  let html = '<div class="tcard" style="margin-bottom:14px"><table><thead><tr><th>Tegenstander</th><th>Gespeeld</th><th>Winst</th><th>Verlies</th><th>Pnt</th><th>Winst %</th></tr></thead><tbody>';
   oppRows.forEach(([opp, s]) => {
     const total = s.w + s.l;
     const pct = Math.round(s.w / total * 100);
@@ -1453,6 +1811,64 @@ function renderPrevSeasonTab(snap, team) {
   }
 
   return html;
+}
+
+// Formulier om handmatig de poule-instelling te configureren
+// Gebruiker plakt de volleybal.nl-competitie-URL of de stand-RSS-URL
+function renderStandConfigForm(team, currentPoule, channelTitle) {
+  const hint = currentPoule ? currentPoule.path : '';
+  return '<div style="padding:18px;max-width:520px">'+
+    '<div class="info-box" style="margin-bottom:14px">'+
+      '⚙️ De stand kon niet automatisch worden gevonden. Plak hieronder de URL van de competitie-'+
+      'pagina op volleybal.nl, of de directe stand-RSS-URL van de Nevobo API.'+
+    '</div>'+
+    (channelTitle ? '<div style="font-size:.76rem;color:var(--gray-500);margin-bottom:12px">📡 Feed-naam: <strong>'+esc(channelTitle)+'</strong></div>' : '')+
+    '<div style="font-size:.76rem;color:var(--gray-500);margin-bottom:6px;font-weight:600">VOORBEELDEN</div>'+
+    '<div style="font-size:.74rem;color:var(--gray-400);margin-bottom:12px;line-height:1.6;font-family:var(--mono)">'+
+      'volleybal.nl/competitie/poule/nationale-competitie/<wbr>competitie-seniorencompetitie-5/<wbr>nationale-competitie-2dh-11<br>'+
+      'api.nevobo.nl/export/poule/…/stand.rss'+
+    '</div>'+
+    '<div style="display:flex;flex-direction:column;gap:10px">'+
+      '<div>'+
+        '<label style="font-size:.75rem;font-weight:600;color:var(--gray-500);display:block;margin-bottom:4px">URL VAN COMPETITIE OF STAND-RSS</label>'+
+        '<input id="pouleCfgUrl" type="url" value="'+esc(hint ? 'https://www.volleybal.nl/competitie/poule/'+hint : '')+'" '+
+          'placeholder="https://www.volleybal.nl/competitie/poule/…" '+
+          'style="width:100%;padding:8px 10px;border:1px solid var(--gray-200);border-radius:8px;font-family:var(--mono);font-size:.82rem;box-sizing:border-box">'+
+      '</div>'+
+      '<button onclick="savePouleConfig(\''+esc(team.id)+'\')" style="align-self:flex-start;background:var(--black);color:var(--white);border:none;border-radius:8px;padding:9px 18px;font-family:var(--sans);font-size:.85rem;font-weight:600;cursor:pointer">Opslaan &amp; stand laden</button>'+
+    '</div>'+
+  '</div>';
+}
+
+// Extraheer het poule-pad uit een URL die de gebruiker heeft ingetypt
+function poulePathFromInput(url) {
+  if (!url) return null;
+  const u = url.trim();
+  // Patroon: api.nevobo.nl/export/poule/{pad}/stand.rss
+  let m = u.match(/\/export\/poule\/([a-z][a-z0-9-]*(?:\/[a-z0-9][a-z0-9-]*){1,2})\/stand\.rss/i);
+  if (m) return m[1];
+  // Patroon: api.nevobo.nl/export/poule/{pad}
+  m = u.match(/\/export\/poule\/([a-z][a-z0-9-]*(?:\/[a-z0-9][a-z0-9-]*){1,2})/i);
+  if (m) return m[1];
+  // Patroon: volleybal.nl/competitie/{type}/{regio}/{competition}/{poule}
+  m = u.match(/\/competitie\/[a-z]+\/([a-z][a-z0-9-]*\/[a-z0-9][a-z0-9-]*\/[a-z0-9][a-z0-9-]*)(?:[/?#]|$)/i);
+  if (m) return m[1];
+  // Patroon: volleybal.nl/competitie/{type}/{regio}/{poule} (2-segment)
+  m = u.match(/\/competitie\/[a-z]+\/([a-z][a-z0-9-]*\/[a-z0-9][a-z0-9-]*)(?:[/?#]|$)/i);
+  if (m) return m[1];
+  return null;
+}
+
+function savePouleConfig(teamId) {
+  const rawUrl = document.getElementById('pouleCfgUrl')?.value?.trim();
+  const path = poulePathFromInput(rawUrl);
+  if (!path) { alert('Kon geen geldige poule-URL herkennen. Plak de volledige URL van volleybal.nl of de Nevobo stand-RSS.'); return; }
+  setPouleConfig(teamId, path);
+  // Wis alle stand-caches voor dit team zodat de nieuwe URL geprobeerd wordt
+  delCached('stand__' + path.replace(/\//g, '__'));
+  delete PAGE_CACHE.team[teamId];
+  const team = TR[teamId];
+  if (team) loadTeam(team);
 }
 
 function sv(cl,l,v,s) { return '<div class="sc '+cl+'"><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(s?'<div class="s">'+s+'</div>':'')+'</div>'; }
@@ -1543,6 +1959,24 @@ document.addEventListener('click', e => {
 (function() {
   getFavTeams().forEach(t => { TR[t.id] = t; });
   updateFavCount(); renderHome(); loadClubsDB();
+  // Laad poule-database asynchroon (hoeft niet af te zijn voor de eerste render)
+  // Probeer eerst de backend-API, dan poule_db.json als statisch bestand (GitHub Pages / lokaal)
+  (async function loadPouleDB() {
+    const sources = ['/api/poules', './poule_db.json'];
+    for (const src of sources) {
+      try {
+        const r = await fetch(src);
+        if (!r.ok) continue;
+        const data = await r.json();
+        if (Array.isArray(data) && data.length) {
+          POULE_DB = data;
+          console.log('[POULE_DB] Geladen van', src, '—', data.length, 'poules');
+          return;
+        }
+      } catch (_) { /* probeer volgende */ }
+    }
+    console.info('[POULE_DB] Geen poule-database gevonden, stand-detectie via fallbacks');
+  })();
 })();
 </script>
 </body>
